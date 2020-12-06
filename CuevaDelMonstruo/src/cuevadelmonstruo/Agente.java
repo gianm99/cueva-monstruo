@@ -12,7 +12,7 @@ package cuevadelmonstruo;
  */
 public class Agente {
 
-    public Orientacion orientacion;
+    private Orientacion orientacion; // Hacia donde apunta
     private boolean hedor; // Detecta hedor
     private boolean brisa; // Detecta una brisa
     private boolean resplandor; // Ve un resplandor
