@@ -5,6 +5,8 @@
  */
 package cuevadelmonstruo;
 
+import cuevadelmonstruo.Agente.Orientacion;
+
 /**
  * Una posición en la cueva del monstruo
  *
@@ -24,6 +26,16 @@ public class Posicion {
 		hash = suma * (suma + 1) / 2 + fila;
 	}
 
+	/**
+	 * Determina si una posición es correcta. Una posición es correcta si es una combinación de dos
+	 * números enteros mayores a cero y menores al número máximo de filas y columnas
+	 *
+	 * @return boolean indicando si la posición es correcta
+	 */
+	public boolean esCorrecta() {
+		return fila > 0 && fila <= Cueva.FILAS_MAX && columna > 0 && columna <= Cueva.COLUMNAS_MAX;
+	}
+
 	@Override
 	public int hashCode() {
 		return hash;
@@ -35,5 +47,35 @@ public class Posicion {
 			return ((Posicion) obj).fila == fila && ((Posicion) obj).columna == columna;
 		}
 		return false;
+	}
+
+	/**
+	 * Devuelve la posición que se encuentra en la dirección que se indique
+	 *
+	 * @param orientacion dirección en la que se encuentra la posición adyacente
+	 * @return posición adyacente en el sentido indicado
+	 */
+	public Posicion adyacente(Orientacion orientacion) {
+		switch (orientacion) {
+			case NORTE:
+				return new Posicion(fila + 1, columna);
+			case ESTE:
+				return new Posicion(fila, columna + 1);
+			case SUR:
+				return new Posicion(fila - 1, columna);
+			default:
+				return new Posicion(fila, columna - 1);
+		}
+	}
+
+	//================================================================================
+	// Getters y setters
+	//================================================================================
+	public int getFila() {
+		return fila;
+	}
+
+	public int getColumna() {
+		return columna;
 	}
 }
