@@ -14,39 +14,88 @@ import java.util.HashMap;
  */
 public class BaseConocimiento {
 
+	private int filas;
+	private int columnas;
+	private boolean filasConocidas;
+	private boolean columnasConocidas;
 	private final HashMap<Posicion, Informacion> bc = new HashMap();
 
 	/**
 	 * Comprueba si existe un registro con información asociada a una posición en concreto
 	 *
-	 * @param fila fila de la posición que se quiere comprobar
-	 * @param columna columna de la posición que se quiere comprobar
+	 * @param p posición que se quiere comprobar
 	 * @return boolean que indica si hay o no un registro
 	 */
-	public boolean existeRegistro(int fila, int columna) {
-		return bc.containsKey(new Posicion(fila, columna));
+	public boolean existeRegistro(Posicion p) {
+		return bc.containsKey(p);
 	}
 
 	/**
 	 * Devolver la información asociada a una posición
 	 *
-	 * @param fila fila de la posición sobre la que se consulta
-	 * @param columna columna de la posición sobre la que se consulta
+	 * @param p posición que se quiere consultar
 	 * @return percepción asociada a la posición que se consulta
 	 */
-	public Informacion consultar(int fila, int columna) {
-		return bc.get(new Posicion(fila, columna));
+	public Informacion consultar(Posicion p) {
+		return bc.get(p);
 	}
 
 	/**
 	 * Registra la información que se ha percibido o inferido sobre una posición
 	 *
-	 * @param fila fila de la posición asociada a la percepción
-	 * @param columna columna de la posición asociada a la percepción
-	 * @param p percepción que se quiere registrar
+	 * @param p posición que se quiere registrar
+	 * @param i percepción que se quiere registrar
 	 */
-	public void registrar(int fila, int columna, Informacion p) {
-		// TODO Pensar si es necesario comprobar si ya existía registro
-		bc.put(new Posicion(fila, columna), p);
+	public void registrar(Posicion p, Informacion i) {
+		if (p.getFila() == 1) {
+			i.setBordeSur(true);
+		} else if (filasConocidas && p.getFila() == filas) {
+			i.setBordeNorte(true);
+		}
+		if (p.getColumna() == 1) {
+			i.setBordeOeste(true);
+		} else if (columnasConocidas && p.getColumna() == columnas) {
+			i.setBordeEste(true);
+		}
+		bc.put(p, i);
+	}
+
+	/**
+	 * Guarda el número de filas que tiene la cueva
+	 *
+	 * @param filas número de filas que se ha determinado que tiene la cueva
+	 */
+	public void registrarFilas(int filas) {
+		this.filas = filas;
+		filasConocidas = true;
+	}
+
+	/**
+	 * Guarda el número de columnas que tiene la cueva
+	 *
+	 * @param columnas número de columnas que se ha determinado que tiene la cueva
+	 */
+	public void registrarColumnas(int columnas) {
+		this.columnas = columnas;
+		columnasConocidas = true;
+	}
+
+	//================================================================================
+	// Getters y setters
+	//================================================================================
+	public int getFilas() {
+		return filas;
+	}
+
+	public int getColumnas() {
+		return columnas;
+	}
+
+	public boolean isFilasConocidas() {
+		return filasConocidas;
+	}
+
+	public boolean isColumnasConocidas() {
+		return columnasConocidas;
 	}
 }
