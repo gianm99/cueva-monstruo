@@ -16,6 +16,7 @@ public class CuevaDelMonstruo {
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) {
+		Cueva cueva = new Cueva(4, 4);
 	}
 
 }
