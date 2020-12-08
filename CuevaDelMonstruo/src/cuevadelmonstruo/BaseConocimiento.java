@@ -47,16 +47,6 @@ public class BaseConocimiento {
 	 * @param i percepción que se quiere registrar
 	 */
 	public void registrar(Posicion p, Informacion i) {
-		if (p.getFila() == 1) {
-			i.setBordeSur(true);
-		} else if (filasConocidas && p.getFila() == filas) {
-			i.setBordeNorte(true);
-		}
-		if (p.getColumna() == 1) {
-			i.setBordeOeste(true);
-		} else if (columnasConocidas && p.getColumna() == columnas) {
-			i.setBordeEste(true);
-		}
 		bc.put(p, i);
 	}
 
