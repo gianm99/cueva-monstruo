@@ -7,6 +7,8 @@ package cuevadelmonstruo;
 
 import cuevadelmonstruo.Informacion.Monstruo;
 import cuevadelmonstruo.Informacion.Precipicio;
+import java.util.Comparator;
+import java.util.TreeSet;
 
 /**
  * Un agente que razona para encontrar el tesoro en la cueva del monstruo
@@ -22,17 +24,14 @@ public class Agente {
 	private boolean gemido;				// Escucha un (aterrorizante) gemido
 	private boolean meta;				// Tesoro encontrado
 	private Orientacion orientacion;	// Hacia donde apunta
-	private int fila;					// Fila en t
-	private int columna;				// Columna en t
-	private int filaAnterior;			// Fila en t-1
-	private int columnaAnterior;		// Columna en t-1
+	Posicion posActual;
+	// Posicion posAnterior;
 	private int t = 0;					// Reloj interno del agente
 	private BaseConocimiento bc;
 
-	public Agente(Orientacion orientacion, int fila, int columna) {
+	public Agente(Posicion posicion, Orientacion orientacion) {
 		this.orientacion = orientacion;
-		this.fila = fila;
-		this.columna = columna;
+		this.posActual = posicion;
 	}
 
 	/**
@@ -50,16 +49,15 @@ public class Agente {
 		if (golpe) {
 			switch (orientacion) {
 				case NORTE:
-					bc.registrarFilas(fila);
+					bc.registrarFilas(posActual.getFila());
 					break;
 				case ESTE:
-					bc.registrarColumnas(columna);
+					bc.registrarColumnas(posActual.getColumna());
 					break;
 				default:
 			}
 		}
 		// Se actualiza la posición que se está visitando
-		Posicion posActual = new Posicion(fila, columna);
 		Informacion infoActual = new Informacion(Monstruo.NO, Precipicio.NO);
 		infoActual.setVisitado(true);
 		infoActual.setHedor(hedor);
@@ -159,6 +157,17 @@ public class Agente {
 	}
 
 	/**
+	 * Determina si una posición de la cueva (combinación de fila y columna) es segura para visitar
+	 * dado el conocimiento obtenido
+	 *
+	 * @param p posición que se quiere comprobar
+	 * @return boolean indicando si es segura
+	 */
+	public boolean posicionSegura(Posicion p) {
+		return bc.existeRegistro(p) && bc.consultar(p).segura();
+	}
+
+	/**
 	 * Determina si una posición de la cueva (combinación de fila y columna) es posible dado el
 	 * conocimiento obtenido
 	 *
@@ -166,9 +175,36 @@ public class Agente {
 	 * @return boolean indicando si es posible
 	 */
 	public boolean posicionPosible(Posicion p) {
-		return p.esCorrecta()
+		return p.esPosible()
 				&& (!bc.isFilasConocidas() || p.getFila() <= bc.getFilas())
 				&& (!bc.isColumnasConocidas() || p.getColumna() <= bc.getColumnas());
+	}
+
+	/**
+	 * Determina la acción a realizar por el agente en base al conocimiento que tiene sobre el
+	 * entorno
+	 */
+	public void realizarAccion() {
+		Orientacion orientacionElegida;
+		TreeSet<Orientacion> opciones = new TreeSet<>(new PorPrioridad());
+		for (Orientacion o : Orientacion.values()) {
+			if (posicionSegura(posActual.adyacente(o))) {
+				opciones.add(o);
+			}
+		}
+		orientacionElegida = opciones.first();
+		mover(orientacionElegida);
+	}
+
+	/**
+	 * Se mueve hacia una nueva posición y actualiza los datos sobre la posición actual y la
+	 * orientación
+	 *
+	 * @param orientacion orientación hacia la que se mueve
+	 */
+	public void mover(Orientacion orientacion) {
+		posActual = posActual.adyacente(orientacion);
+		this.orientacion = orientacion;
 	}
 
 	/**
@@ -187,7 +223,7 @@ public class Agente {
 	}
 
 	//================================================================================
-	// Enums
+	// Enums y clases
 	//================================================================================
 	/**
 	 * Orientación que puede tener un agente
@@ -214,4 +250,41 @@ public class Agente {
 			return vals[Math.floorMod((this.ordinal() - 1), vals.length)];
 		}
 	}
+
+	/**
+	 * Implementación de la interfaz Comparator que permite comparar dos opciones y ordenarlas por
+	 * su prioridad
+	 */
+	private class PorPrioridad implements Comparator<Orientacion> {
+
+		/**
+		 * Compara dos opciones por su prioridad. Primero se ordena por si se han visitado o no (si
+		 * no se ha visitado, es más prioritaria) y después por la dirección en la que se encuentra
+		 * (se sigue un orden arbitrario unificado).
+		 *
+		 * @param o1 orientación 1
+		 * @param o2 orientación 2
+		 * @return int que indica la prioridad de 1 sobre 2. Si 1 es más prioritario se devuelve -1,
+		 * si son iguales 0 y en el otro caso 1.
+		 */
+		@Override
+		public int compare(Orientacion o1, Orientacion o2) {
+			Informacion i1 = bc.consultar(posActual.adyacente(o1));
+			Informacion i2 = bc.consultar(posActual.adyacente(o2));
+			if (i1.isVisitado() != i2.isVisitado()) {
+				// Si p1 no se ha visitado, entonces es la más prioritaria
+				return !i1.isVisitado() ? -1 : 1;
+			} else {
+				// Se comprueba el orden arbitrario de direcciones de esta manera se seguirá un 
+				// criterio unificado para tomar decisiones
+				if (o1 != o2) {
+					return o1.ordinal() < o2.ordinal() ? -1 : 1;
+				} else {
+					return 0;
+				}
+			}
+		}
+
+	}
+
 }
