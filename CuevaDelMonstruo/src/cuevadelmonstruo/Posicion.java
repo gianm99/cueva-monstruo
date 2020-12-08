@@ -32,7 +32,7 @@ public class Posicion {
 	 *
 	 * @return boolean indicando si la posición es correcta
 	 */
-	public boolean esCorrecta() {
+	public boolean esPosible() {
 		return fila > 0 && fila <= Cueva.FILAS_MAX && columna > 0 && columna <= Cueva.COLUMNAS_MAX;
 	}
 
