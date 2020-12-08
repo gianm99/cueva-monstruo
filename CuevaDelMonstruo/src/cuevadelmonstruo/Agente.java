@@ -193,7 +193,7 @@ public class Agente {
 	 * Orientación que puede tener un agente
 	 */
 	public enum Orientacion {
-		NORTE, ESTE, SUR, OESTE;
+		ESTE, NORTE, OESTE, SUR; // TODO Comprobar si este cambio de orden causa problemas
 		private static final Orientacion[] vals = values();
 
 		/**
