@@ -17,15 +17,16 @@ public class Informacion {
 	private boolean resplandor;
 	private Monstruo monstruo;
 	private Precipicio precipicio;
-	private boolean bordeNorte;
-	private boolean bordeEste;
-	private boolean bordeSur;
-	private boolean bordeOeste;
 	private boolean visitado;
 
-	public Informacion(Monstruo monstruo, Precipicio precipicio) {
-		this.monstruo = monstruo;
-		this.precipicio = precipicio;
+	/**
+	 * Determina si la información que se tiene sobre una posición indica que es segura para ser
+	 * visitada
+	 *
+	 * @return boolean indicando si es segura
+	 */
+	public boolean segura() {
+		return monstruo == Monstruo.NO && precipicio == Precipicio.NO;
 	}
 
 	//================================================================================
@@ -69,38 +70,6 @@ public class Informacion {
 
 	public void setPrecipicio(Precipicio precipicio) {
 		this.precipicio = precipicio;
-	}
-
-	public boolean isBordeNorte() {
-		return bordeNorte;
-	}
-
-	public void setBordeNorte(boolean bordeNorte) {
-		this.bordeNorte = bordeNorte;
-	}
-
-	public boolean isBordeEste() {
-		return bordeEste;
-	}
-
-	public void setBordeEste(boolean bordeEste) {
-		this.bordeEste = bordeEste;
-	}
-
-	public boolean isBordeSur() {
-		return bordeSur;
-	}
-
-	public void setBordeSur(boolean bordeSur) {
-		this.bordeSur = bordeSur;
-	}
-
-	public boolean isBordeOeste() {
-		return bordeOeste;
-	}
-
-	public void setBordeOeste(boolean bordeOeste) {
-		this.bordeOeste = bordeOeste;
 	}
 
 	public boolean isVisitado() {

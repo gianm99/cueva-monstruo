@@ -7,6 +7,10 @@ package cuevadelmonstruo;
 
 import cuevadelmonstruo.Informacion.Monstruo;
 import cuevadelmonstruo.Informacion.Precipicio;
+import java.util.ArrayDeque;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.TreeSet;
 
 /**
  * Un agente que razona para encontrar el tesoro en la cueva del monstruo
@@ -15,24 +19,23 @@ import cuevadelmonstruo.Informacion.Precipicio;
  */
 public class Agente {
 
-	private boolean hedor;				// Detecta hedor
-	private boolean brisa;				// Detecta una brisa
-	private boolean resplandor;			// Ve un resplandor
-	private boolean golpe;              // Siente un golpe
-	private boolean gemido;				// Escucha un (aterrorizante) gemido
-	private boolean meta;				// Tesoro encontrado
+	private boolean tesoro;				// Tesoro encontrado
+	private boolean terminado;			// Ha regresado al punto de partida con el tesoro
+	private boolean filasConocidas;		// Se conoce el número de filas de la cueva
+	private boolean columnasConocidas;	// Se conoce el número de columnas de la cueva
+	private int filas;					// Si se conoce, número de filas de la cueva
+	private int columnas;				// Si se conoce, número de columnas de la cueva
+	private Posicion posicion;			// Posición en la que está
 	private Orientacion orientacion;	// Hacia donde apunta
-	private int fila;					// Fila en t
-	private int columna;				// Columna en t
-	private int filaAnterior;			// Fila en t-1
-	private int columnaAnterior;		// Columna en t-1
-	private int t = 0;					// Reloj interno del agente
-	private BaseConocimiento bc;
+	private Orientacion movimiento;		// Dirección a la que se va a mover
+	private Deque<Posicion> historial;	// Historial de movimientos hasta el tesoro
+	private BaseConocimiento BC;		// Base de conocimiento
 
-	public Agente(Orientacion orientacion, int fila, int columna) {
+	public Agente(Posicion posicion, Orientacion orientacion) {
 		this.orientacion = orientacion;
-		this.fila = fila;
-		this.columna = columna;
+		this.posicion = posicion;
+		BC = new BaseConocimiento();
+		historial = new ArrayDeque<>();
 	}
 
 	/**
@@ -46,29 +49,37 @@ public class Agente {
 	 * @param golpe
 	 */
 	public void actualizar(boolean hedor, boolean brisa, boolean resplandor, boolean golpe) {
-		this.meta = !this.meta ? resplandor : this.meta; // Coge el tesoro
+		if (resplandor) {
+			tesoro = true;
+			return;
+		}
+		if (!tesoro) {
+			historial.push(posicion);
+		}
 		if (golpe) {
 			switch (orientacion) {
 				case NORTE:
-					bc.registrarFilas(fila);
+					filasConocidas = true;
+					filas = posicion.getFila();
 					break;
 				case ESTE:
-					bc.registrarColumnas(columna);
+					columnasConocidas = true;
+					columnas = posicion.getColumna();
 					break;
 				default:
 			}
 		}
 		// Se actualiza la posición que se está visitando
-		Posicion posActual = new Posicion(fila, columna);
-		Informacion infoActual = new Informacion(Monstruo.NO, Precipicio.NO);
+		Informacion infoActual = new Informacion();
+		infoActual.setMonstruo(Monstruo.NO);
+		infoActual.setPrecipicio(Precipicio.NO);
 		infoActual.setVisitado(true);
 		infoActual.setHedor(hedor);
 		infoActual.setBrisa(brisa);
 		infoActual.setResplandor(resplandor);
-		bc.registrar(posActual, infoActual);
+		BC.registrar(posicion, infoActual);
 		// Se actualizan las posiciones adyacentes
-		actualizarAdyacentes(posActual, hedor, brisa);
-		t++;	// Aumenta un ciclo en el reloj
+		actualizarAdyacentes(posicion, hedor, brisa);
 	}
 
 	/**
@@ -77,85 +88,141 @@ public class Agente {
 	 * conocimiento y las reglas lógicas que definen la conducta del agente y el comportamiento del
 	 * entorno.
 	 *
-	 * @param posicion posición que se ha visitado
+	 * @param central posición que se ha visitado
 	 * @param hedor boolean que indica si se ha sentido un hedor
 	 * @param brisa boolean que indica si se ha sentido una brisa
 	 */
-	private void actualizarAdyacentes(Posicion posicion, boolean hedor, boolean brisa) {
-		Posicion posAdyacente;
-		Informacion infoAdyacente;
+	private void actualizarAdyacentes(Posicion central, boolean hedor, boolean brisa) {
+		Posicion posicionAd; // Posición adyacente
+		Informacion informacionAd; // Información de la posición adyacente
 		for (Orientacion o1 : Orientacion.values()) {
-			posAdyacente = posicion.adyacente(o1);
-			if (!posicionPosible(posAdyacente)) {
-				continue; // Si está fuera de rango, se ignora
+			posicionAd = central.adyacente(o1);
+			// Si la posición no es posible, se ignora
+			if (!posicionPosible(posicionAd)) {
+				continue;
 			}
-			// Se verifica que, en el caso de que exista registro de la posición, se pueda afirmar 
-			// la existencia de un monstruo o precipicio
-			boolean hayMonstruo = true;
-			boolean hayPrecipicio = true;
-			if (bc.existeRegistro(posAdyacente) && (hedor || brisa)) {
-				for (Orientacion o2 : Orientacion.values()) {
-					if (o1 != o2) {
-						if (!noHayMonstruo(posicion.adyacente(o2))) {
-							hayMonstruo = false;
-						}
-						if (!noHayPrecipicio(posicion.adyacente(o2))) {
-							hayPrecipicio = false;
-						}
-						if (!hayMonstruo && !hayPrecipicio) {
-							break;
-						}
+			// Si la información es nueva, se guarda
+			if (!BC.existeRegistro(posicionAd)) {
+				informacionAd = new Informacion();
+				informacionAd.setMonstruo(hedor ? Monstruo.POSIBLE : Monstruo.NO);
+				informacionAd.setPrecipicio(brisa ? Precipicio.POSIBLE : Precipicio.NO);
+				BC.registrar(posicionAd, informacionAd);
+				continue;
+			}
+			informacionAd = BC.consultar(posicionAd);
+			// Si antes no había monstruo ni precipicio, se deja igual
+			if (informacionAd.getMonstruo() == Monstruo.NO
+					&& informacionAd.getPrecipicio() == Precipicio.NO) {
+				continue;
+			}
+			// Si no hay hedor ni brisa, no hay monstruo ni precipicio
+			if (!hedor && !brisa) {
+				informacionAd.setMonstruo(Monstruo.NO);
+				informacionAd.setPrecipicio(Precipicio.NO);
+				continue;
+			}
+			// Se comprueba si se puede confirmar que hay monstruo o precipicio
+			boolean monstruoConfirmado = true;
+			boolean precipicioConfirmado = true;
+			for (Orientacion o2 : Orientacion.values()) {
+				if (o1 != o2) {
+					if (!posibleMonstruo(central.adyacente(o2))) {
+						monstruoConfirmado = false;
+					}
+					if (!posiblePrecipicio(central.adyacente(o2))) {
+						precipicioConfirmado = false;
+					}
+					if (!monstruoConfirmado && !precipicioConfirmado) {
+						break;
 					}
 				}
 			}
-			Monstruo monstruo;
-			if (!hedor) {
-				monstruo = Monstruo.NO;
-			} else if (hayMonstruo) {
-				monstruo = Monstruo.SI;
-			} else {
-				monstruo = Monstruo.POSIBLE;
+			if (informacionAd.getMonstruo() != Monstruo.NO) {
+				if (!hedor) {
+					informacionAd.setMonstruo(Monstruo.NO);
+				} else if (monstruoConfirmado) {
+					informacionAd.setMonstruo(Monstruo.SI);
+				} else {
+					informacionAd.setMonstruo(Monstruo.POSIBLE);
+				}
 			}
-			Precipicio precipicio;
-			if (!brisa) {
-				precipicio = Precipicio.NO;
-			} else if (hayPrecipicio) {
-				precipicio = Precipicio.SI;
-			} else {
-				precipicio = Precipicio.POSIBLE;
-			}
-			// Guardar la información
-			if (bc.existeRegistro(posAdyacente)) {
-				// Actualizar el registro
-				infoAdyacente = bc.consultar(posAdyacente);
-				infoAdyacente.setMonstruo(monstruo);
-				infoAdyacente.setPrecipicio(precipicio);
-			} else {
-				// Crear el registro
-				infoAdyacente = new Informacion(monstruo, precipicio);
-				bc.registrar(posAdyacente, infoAdyacente);
+			if (informacionAd.getPrecipicio() != Precipicio.NO) {
+				if (!brisa) {
+					informacionAd.setPrecipicio(Precipicio.NO);
+				} else if (precipicioConfirmado) {
+					informacionAd.setPrecipicio(Precipicio.SI);
+				} else {
+					informacionAd.setPrecipicio(Precipicio.POSIBLE);
+				}
 			}
 		}
 	}
 
 	/**
-	 * Determina si se puede afirmar que en una posición no hay un monstruo
-	 *
-	 * @param p posición que se comprueba
-	 * @return boolean indicando si se puede afirmar que no hay un monstruo
+	 * Determina la acción a realizar por el agente en base al conocimiento que tiene sobre el
+	 * entorno. Si ya ha encontrado el tesoro, lo que hace es recorrer el camino de vuelta al punto
+	 * de partida.
 	 */
-	public boolean noHayMonstruo(Posicion p) {
-		return bc.existeRegistro(p) && bc.consultar(p).getMonstruo() == Monstruo.NO;
+	public void elegirAccion() {
+		if (tesoro) {
+			movimiento = posicion.direccion(historial.pop());
+			return;
+		}
+		TreeSet<Orientacion> opciones = new TreeSet<>(new PorPrioridad());
+		for (Orientacion o : Orientacion.values()) {
+			if (posicionSegura(posicion.adyacente(o))) {
+				opciones.add(o);
+			}
+		}
+		movimiento = opciones.first();
 	}
 
 	/**
-	 * Determina si se puede afirmar que en una posición no hay un precipicio
+	 * Se mueve hacia una nueva posición y actualiza los datos sobre la posición actual y la
+	 * orientación
+	 */
+	public void mover() {
+		orientacion = movimiento; // Se gira
+		System.out.println("Me muevo hacia el " + movimiento);
+		posicion = posicion.adyacente(movimiento); // Se mueve
+		System.out.println("Ahora estoy en " + posicion);
+		if (tesoro && posicion.esPuntoPartida()) {
+			// Si tiene el tesoro y está en el punto de partida, ha terminado
+			terminado = true;
+		}
+	}
+
+	/**
+	 * Determina si es posible que en una posición haya un monstruo dado el conocimiento obtenido
 	 *
 	 * @param p posición que se comprueba
-	 * @return boolean indicando si se puede afirmar que no hay un precipicio
+	 * @return boolean indicando si es posible
 	 */
-	public boolean noHayPrecipicio(Posicion p) {
-		return bc.existeRegistro(p) && bc.consultar(p).getPrecipicio() == Precipicio.NO;
+	public boolean posibleMonstruo(Posicion p) {
+		return posicionPosible(p) && BC.existeRegistro(p)
+				&& BC.consultar(p).getMonstruo() != Monstruo.NO;
+	}
+
+	/**
+	 * Determina si es posible que en una posición haya un precipicio dado el conocimiento obtenido
+	 *
+	 * @param p posición que se comprueba
+	 * @return boolean indicando si es posible
+	 */
+	public boolean posiblePrecipicio(Posicion p) {
+		return posicionPosible(p) && BC.existeRegistro(p)
+				&& BC.consultar(p).getPrecipicio() != Precipicio.NO;
+	}
+
+	/**
+	 * Determina si una posición de la cueva (combinación de fila y columna) es segura para visitar
+	 * dado el conocimiento obtenido
+	 *
+	 * @param p posición que se quiere comprobar
+	 * @return boolean indicando si es segura
+	 */
+	public boolean posicionSegura(Posicion p) {
+		return BC.existeRegistro(p) && BC.consultar(p).segura();
 	}
 
 	/**
@@ -166,34 +233,54 @@ public class Agente {
 	 * @return boolean indicando si es posible
 	 */
 	public boolean posicionPosible(Posicion p) {
-		return p.esCorrecta()
-				&& (!bc.isFilasConocidas() || p.getFila() <= bc.getFilas())
-				&& (!bc.isColumnasConocidas() || p.getColumna() <= bc.getColumnas());
-	}
-
-	/**
-	 * Girar 90 grados en sentido horario
-	 */
-	public void girarDerecha() {
-		orientacion = orientacion.derecha();
-	}
-
-	/**
-	 * Girar -90 grados en sentido horario
-	 */
-	public void girarIzquierda() {
-		orientacion = orientacion.izquierda();
-
+		return p.esPosible()
+				&& (!filasConocidas || p.getFila() <= filas)
+				&& (!columnasConocidas || p.getColumna() <= columnas);
 	}
 
 	//================================================================================
-	// Enums
+	// Getters y setters
+	//================================================================================
+	public Posicion getPosicion() {
+		return posicion;
+	}
+
+	public void setPosicion(Posicion posicion) {
+		this.posicion = posicion;
+	}
+
+	public Orientacion getOrientacion() {
+		return orientacion;
+	}
+
+	public void setOrientacion(Orientacion orientacion) {
+		this.orientacion = orientacion;
+	}
+
+	public boolean isTesoro() {
+		return tesoro;
+	}
+
+	public void setTesoro(boolean tesoro) {
+		this.tesoro = tesoro;
+	}
+
+	public boolean isTerminado() {
+		return terminado;
+	}
+
+	public void setTerminado(boolean terminado) {
+		this.terminado = terminado;
+	}
+
+	//================================================================================
+	// Enums y clases
 	//================================================================================
 	/**
 	 * Orientación que puede tener un agente
 	 */
 	public enum Orientacion {
-		NORTE, ESTE, SUR, OESTE;
+		ESTE, NORTE, OESTE, SUR;
 		private static final Orientacion[] vals = values();
 
 		/**
@@ -214,4 +301,41 @@ public class Agente {
 			return vals[Math.floorMod((this.ordinal() - 1), vals.length)];
 		}
 	}
+
+	/**
+	 * Implementación de la interfaz Comparator que permite comparar dos opciones y ordenarlas por
+	 * su prioridad
+	 */
+	private class PorPrioridad implements Comparator<Orientacion> {
+
+		/**
+		 * Compara dos opciones por su prioridad. Primero se ordena por si se han visitado o no (si
+		 * no se ha visitado, es más prioritaria) y después por la dirección en la que se encuentra
+		 * (se sigue un orden arbitrario unificado).
+		 *
+		 * @param o1 orientación 1
+		 * @param o2 orientación 2
+		 * @return int que indica la prioridad de 1 sobre 2. Si 1 es más prioritario se devuelve -1,
+		 * si son iguales 0 y en el otro caso 1.
+		 */
+		@Override
+		public int compare(Orientacion o1, Orientacion o2) {
+			Informacion i1 = BC.consultar(posicion.adyacente(o1));
+			Informacion i2 = BC.consultar(posicion.adyacente(o2));
+			if (i1.isVisitado() != i2.isVisitado()) {
+				// Si p1 no se ha visitado, entonces es la más prioritaria
+				return !i1.isVisitado() ? -1 : 1;
+			} else {
+				// Se comprueba el orden arbitrario de direcciones de esta manera se seguirá un 
+				// criterio unificado para tomar decisiones
+				if (o1 != o2) {
+					return o1.ordinal() < o2.ordinal() ? -1 : 1;
+				} else {
+					return 0;
+				}
+			}
+		}
+
+	}
+
 }
