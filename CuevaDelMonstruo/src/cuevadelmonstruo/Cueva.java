@@ -5,6 +5,8 @@
  */
 package cuevadelmonstruo;
 
+import cuevadelmonstruo.Agente.Orientacion;
+
 /**
  * Una cueva con unas características determinadas
  *
@@ -12,13 +14,14 @@ package cuevadelmonstruo;
  */
 public class Cueva {
 
+	private final Agente agente;
 	private final int columnas;
 	private final int filas;
 	private final Cuadro[][] cuadros;
-	static final int COLUMNAS_MIN = 3;
-	static final int FILAS_MIN = 3;
-	static final int COLUMNAS_MAX = 100;
-	static final int FILAS_MAX = 100;
+	public static final int COLUMNAS_MIN = 3;
+	public static final int FILAS_MIN = 3;
+	public static final int COLUMNAS_MAX = 100;
+	public static final int FILAS_MAX = 100;
 
 	public Cueva(int filas, int columnas) {
 		this.filas = filas;
@@ -29,6 +32,38 @@ public class Cueva {
 				cuadros[i][j] = new Cuadro();
 			}
 		}
+		agente = new Agente(new Posicion(1, 1), Orientacion.ESTE);
+	}
+
+	public void obtenerPercepciones() {
+		Posicion posicion = agente.getPosicion();
+		int fila = posicion.getFila() - 1;
+		int columna = posicion.getColumna() - 1;
+		boolean hedor = cuadros[fila][columna].isHedor();
+		boolean brisa = cuadros[fila][columna].isBrisa();
+		boolean resplandor = cuadros[fila][columna].isTesoro();
+		boolean golpe = calcularGolpe();
+		agente.actualizar(hedor, brisa, resplandor, golpe);
+	}
+
+	/**
+	 * Determina si el agente debe percibir un golpe por haber avanzado hacia un muro de la cueva
+	 *
+	 * @return boolean indicando si debe percibir un golpe
+	 */
+	private boolean calcularGolpe() {
+		Posicion posicion = agente.getPosicion();
+		Orientacion orientacion = agente.getOrientacion();
+		return (posicion.getFila() == filas && orientacion == Orientacion.NORTE)
+				|| (posicion.getColumna() == columnas && orientacion == Orientacion.ESTE);
+	}
+
+	/**
+	 * Hacer que el agente realice las acciones que considere correctas
+	 */
+	public void realizarAcciones() {
+		agente.elegirAccion();
+		agente.mover();
 	}
 
 	/**
@@ -58,7 +93,7 @@ public class Cueva {
 			return;
 		}
 		cuadros[fila - 1][columna - 1].setMonstruo(true);
-		agregarHedor(fila, columna);
+		expandirHedor(fila, columna);
 	}
 
 	/**
@@ -67,24 +102,36 @@ public class Cueva {
 	 * @param fila fila de la posición del monstruo
 	 * @param columna columna de la posición del monstruo
 	 */
-	public void agregarHedor(int fila, int columna) {
-		cuadros[fila - 1][columna - 1].setHedor(true);
+	private void expandirHedor(int fila, int columna) {
+		agregarHedor(fila, columna);
 		// ESTE
 		if (posicionCorrecta(fila, columna + 1)) {
-			cuadros[fila][columna + 1].setHedor(true);
+			agregarHedor(fila, columna + 1);
 		}
 		// NORTE
 		if (posicionCorrecta(fila + 1, columna)) {
-			cuadros[fila + 1][columna].setHedor(true);
+			agregarHedor(fila + 1, columna);
 		}
 		// OESTE
 		if (posicionCorrecta(fila, columna - 1)) {
-			cuadros[fila][columna - 1].setHedor(true);
+			agregarHedor(fila, columna - 1);
 		}
 		// SUR
 		if (posicionCorrecta(fila - 1, columna)) {
-			cuadros[fila - 1][columna].setHedor(true);
+			agregarHedor(fila - 1, columna);
 		}
+	}
+
+	/**
+	 * Agrega hedor a una posición de la cueva
+	 *
+	 * @param fila fila de la posición
+	 * @param columna columna de la posición
+	 */
+	private void agregarHedor(int fila, int columna) {
+		fila--;
+		columna--;
+		cuadros[fila][columna].setHedor(true);
 	}
 
 	/**
@@ -99,7 +146,7 @@ public class Cueva {
 			return;
 		}
 		cuadros[fila - 1][columna - 1].setMonstruo(true);
-		agregarBrisa(fila, columna);
+		expandirBrisa(fila, columna);
 	}
 
 	/**
@@ -108,24 +155,36 @@ public class Cueva {
 	 * @param fila fila de la posición del precipicio
 	 * @param columna columna de la posición del precipicio
 	 */
-	public void agregarBrisa(int fila, int columna) {
-		cuadros[fila - 1][columna - 1].setBrisa(true);
+	private void expandirBrisa(int fila, int columna) {
+		agregarBrisa(fila, columna);
 		// ESTE
 		if (posicionCorrecta(fila, columna + 1)) {
-			cuadros[fila][columna + 1].setBrisa(true);
+			agregarBrisa(fila, columna + 1);
 		}
 		// NORTE
 		if (posicionCorrecta(fila + 1, columna)) {
-			cuadros[fila + 1][columna].setBrisa(true);
+			agregarBrisa(fila + 1, columna);
 		}
 		// OESTE
 		if (posicionCorrecta(fila, columna - 1)) {
-			cuadros[fila][columna - 1].setBrisa(true);
+			agregarBrisa(fila, columna - 1);
 		}
 		// SUR
 		if (posicionCorrecta(fila - 1, columna)) {
-			cuadros[fila - 1][columna].setBrisa(true);
+			agregarBrisa(fila - 1, columna);
 		}
+	}
+
+	/**
+	 * Agrega brisa a una posición de la cueva
+	 *
+	 * @param fila fila de la posición
+	 * @param columna columna de la posición
+	 */
+	private void agregarBrisa(int fila, int columna) {
+		fila--;
+		columna--;
+		cuadros[fila][columna].setBrisa(true);
 	}
 
 	/**
@@ -154,6 +213,15 @@ public class Cueva {
 				|| (fila1 == fila2 + 1 && columna1 == columna2) // NORTE
 				|| (fila1 == fila2 && columna1 == columna2 - 1) // OESTE
 				|| (fila1 == fila2 - 1 && columna1 == columna2); // SUR
+	}
+
+	/**
+	 * Determina el agente de la cueva ha terminado la búsqueda del tesoro
+	 *
+	 * @return boolean indicando si todos los agentes han terminado
+	 */
+	public boolean haTerminado() {
+		return agente.isTerminado();
 	}
 
 	/**

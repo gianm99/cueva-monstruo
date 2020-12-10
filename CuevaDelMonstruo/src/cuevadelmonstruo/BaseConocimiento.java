@@ -8,27 +8,14 @@ package cuevadelmonstruo;
 import java.util.HashMap;
 
 /**
- * Una base de conocimiento para solucionar el problema de la cueva del monstruo
+ * Una base de conocimiento para solucionar el problema de la cueva del monstruo. Sirve para guardar
+ * la información sobre cada posición de la cueva con la que el agente se encuentre.
  *
  * @author gianm
  */
 public class BaseConocimiento {
 
-	private int filas;
-	private int columnas;
-	private boolean filasConocidas;
-	private boolean columnasConocidas;
 	private final HashMap<Posicion, Informacion> bc = new HashMap();
-
-	/**
-	 * Comprueba si existe un registro con información asociada a una posición en concreto
-	 *
-	 * @param p posición que se quiere comprobar
-	 * @return boolean que indica si hay o no un registro
-	 */
-	public boolean existeRegistro(Posicion p) {
-		return bc.containsKey(p);
-	}
 
 	/**
 	 * Devolver la información asociada a una posición
@@ -51,41 +38,12 @@ public class BaseConocimiento {
 	}
 
 	/**
-	 * Guarda el número de filas que tiene la cueva
+	 * Comprueba si existe un registro con información asociada a una posición en concreto
 	 *
-	 * @param filas número de filas que se ha determinado que tiene la cueva
+	 * @param p posición que se quiere comprobar
+	 * @return boolean que indica si hay o no un registro
 	 */
-	public void registrarFilas(int filas) {
-		this.filas = filas;
-		filasConocidas = true;
-	}
-
-	/**
-	 * Guarda el número de columnas que tiene la cueva
-	 *
-	 * @param columnas número de columnas que se ha determinado que tiene la cueva
-	 */
-	public void registrarColumnas(int columnas) {
-		this.columnas = columnas;
-		columnasConocidas = true;
-	}
-
-	//================================================================================
-	// Getters y setters
-	//================================================================================
-	public int getFilas() {
-		return filas;
-	}
-
-	public int getColumnas() {
-		return columnas;
-	}
-
-	public boolean isFilasConocidas() {
-		return filasConocidas;
-	}
-
-	public boolean isColumnasConocidas() {
-		return columnasConocidas;
+	public boolean existeRegistro(Posicion p) {
+		return bc.containsKey(p);
 	}
 }

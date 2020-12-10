@@ -14,9 +14,9 @@ import cuevadelmonstruo.Agente.Orientacion;
  */
 public class Posicion {
 
-	private final int fila;
-	private final int columna;
-	private final int hash; // hash asociado a una posición
+	private final int fila;		// Fila de la posición
+	private final int columna;	// Columna de la posición
+	private final int hash;		// Hash asociado a una posición
 
 	public Posicion(int fila, int columna) {
 		this.fila = fila;
@@ -28,7 +28,7 @@ public class Posicion {
 
 	/**
 	 * Determina si una posición es correcta. Una posición es correcta si es una combinación de dos
-	 * números enteros mayores a cero y menores al número máximo de filas y columnas
+	 * números enteros mayores a cero y menores al número máximo posible de filas y columnas
 	 *
 	 * @return boolean indicando si la posición es correcta
 	 */
@@ -36,17 +36,12 @@ public class Posicion {
 		return fila > 0 && fila <= Cueva.FILAS_MAX && columna > 0 && columna <= Cueva.COLUMNAS_MAX;
 	}
 
-	@Override
-	public int hashCode() {
-		return hash;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof Posicion) {
-			return ((Posicion) obj).fila == fila && ((Posicion) obj).columna == columna;
-		}
-		return false;
+	/**
+	 * Determina si la posición es el punto de partida del agente
+	 * @return boolean indicando si es el punto de partida
+	 */
+	public boolean esPuntoPartida() {
+		return fila == 1 && columna == 1;
 	}
 
 	/**
@@ -66,6 +61,44 @@ public class Posicion {
 			default:
 				return new Posicion(fila, columna - 1);
 		}
+	}
+
+	/**
+	 * Devuelve la dirección en la que se encuentra una posición respecto a esta
+	 * @param posicion
+	 * @return 
+	 */
+	public Orientacion direccion(Posicion posicion) {
+		if (posicion.getFila() < fila) {
+			return Orientacion.SUR;
+		} else if (posicion.getFila() > fila) {
+			return Orientacion.NORTE;
+		} else if (posicion.getColumna() < columna) {
+			return Orientacion.OESTE;
+		} else {
+			return Orientacion.ESTE;
+		}
+	}
+
+	//================================================================================
+	// Override
+	//================================================================================
+	@Override
+	public String toString() {
+		return "(" + fila + ", " + columna + ")";
+	}
+
+	@Override
+	public int hashCode() {
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Posicion) {
+			return ((Posicion) obj).fila == fila && ((Posicion) obj).columna == columna;
+		}
+		return false;
 	}
 
 	//================================================================================

@@ -19,11 +19,6 @@ public class Informacion {
 	private Precipicio precipicio;
 	private boolean visitado;
 
-	public Informacion(Monstruo monstruo, Precipicio precipicio) {
-		this.monstruo = monstruo;
-		this.precipicio = precipicio;
-	}
-
 	/**
 	 * Determina si la información que se tiene sobre una posición indica que es segura para ser
 	 * visitada
