@@ -9,7 +9,6 @@ import cuevadelmonstruo.Informacion.Monstruo;
 import cuevadelmonstruo.Informacion.Precipicio;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.Random;
@@ -21,22 +20,18 @@ import java.util.Random;
  */
 public class Agente {
 
-	private boolean tesoro;				// Tesoro encontrado
-	private boolean terminado;			// Ha regresado al punto de partida con el tesoro
-	private boolean filasConocidas;		// Se conoce el número de filas de la cueva
-	private boolean columnasConocidas;	// Se conoce el número de columnas de la cueva
-	private int filas;					// Si se conoce, número de filas de la cueva
-	private int columnas;				// Si se conoce, número de columnas de la cueva
-	private Posicion posicion;			// Posición en la que está
-	private Orientacion orientacion;	// Hacia donde apunta
-	private Orientacion movimiento;		// Dirección a la que se va a mover
-	private Deque<Posicion> historial;	// Historial de movimientos hasta el tesoro
-	private BaseConocimiento BC;		// Base de conocimiento
+	private boolean tesoro;						// Tesoro encontrado
+	private boolean terminado;					// Ha regresado al punto de partida con el tesoro
+	private Posicion posicion;					// Posición en la que está
+	private Orientacion orientacion;			// Hacia donde apunta
+	private Orientacion movimiento;				// Dirección a la que se va a mover
+	private Deque<Posicion> historial;			// Historial de movimientos hasta el tesoro
+	private BaseConocimiento baseConocimiento;	// Base de conocimiento
 
 	public Agente(Posicion posicion, Orientacion orientacion) {
 		this.orientacion = orientacion;
 		this.posicion = posicion;
-		BC = new BaseConocimiento();
+		baseConocimiento = new BaseConocimiento();
 		historial = new ArrayDeque<>();
 	}
 
@@ -61,12 +56,10 @@ public class Agente {
 		if (golpe) {
 			switch (orientacion) {
 				case NORTE:
-					filasConocidas = true;
-					filas = posicion.getFila();
+					baseConocimiento.registrarFilas(posicion.getFila());
 					break;
 				case ESTE:
-					columnasConocidas = true;
-					columnas = posicion.getColumna();
+					baseConocimiento.registrarColumnas(posicion.getColumna());
 					break;
 				default:
 			}
@@ -79,9 +72,11 @@ public class Agente {
 		infoActual.setHedor(hedor);
 		infoActual.setBrisa(brisa);
 		infoActual.setResplandor(resplandor);
-		BC.registrar(posicion, infoActual);
+		baseConocimiento.registrar(posicion, infoActual);
 		// Se actualizan las posiciones adyacentes
 		actualizarAdyacentes(posicion, hedor, brisa);
+		// Se actualizan el resto de posiciones descubiertas
+		baseConocimiento.actualizarTodo();
 	}
 
 	/**
@@ -100,18 +95,18 @@ public class Agente {
 		for (Orientacion o1 : Orientacion.values()) {
 			posicionAd = central.adyacente(o1);
 			// Si la posición no es posible, se ignora
-			if (!posicionPosible(posicionAd)) {
+			if (!baseConocimiento.posicionPosible(posicionAd)) {
 				continue;
 			}
 			// Si la información es nueva, se guarda
-			if (!BC.existeRegistro(posicionAd)) {
+			if (!baseConocimiento.existeRegistro(posicionAd)) {
 				informacionAd = new Informacion();
 				informacionAd.setMonstruo(hedor ? Monstruo.POSIBLE : Monstruo.NO);
 				informacionAd.setPrecipicio(brisa ? Precipicio.POSIBLE : Precipicio.NO);
-				BC.registrar(posicionAd, informacionAd);
+				baseConocimiento.registrar(posicionAd, informacionAd);
 				continue;
 			}
-			informacionAd = BC.consultar(posicionAd);
+			informacionAd = baseConocimiento.consultar(posicionAd);
 			// Si antes no había monstruo ni precipicio, se deja igual
 			if (informacionAd.getMonstruo() == Monstruo.NO
 					&& informacionAd.getPrecipicio() == Precipicio.NO) {
@@ -128,10 +123,10 @@ public class Agente {
 			boolean precipicioConfirmado = true;
 			for (Orientacion o2 : Orientacion.values()) {
 				if (o1 != o2) {
-					if (!posibleMonstruo(central.adyacente(o2))) {
+					if (baseConocimiento.posibleMonstruo(central.adyacente(o2))) {
 						monstruoConfirmado = false;
 					}
-					if (!posiblePrecipicio(central.adyacente(o2))) {
+					if (baseConocimiento.posiblePrecipicio(central.adyacente(o2))) {
 						precipicioConfirmado = false;
 					}
 					if (!monstruoConfirmado && !precipicioConfirmado) {
@@ -139,6 +134,7 @@ public class Agente {
 					}
 				}
 			}
+			// Solo se comprueba si es posible o se había confirmado
 			if (informacionAd.getMonstruo() != Monstruo.NO) {
 				if (!hedor) {
 					informacionAd.setMonstruo(Monstruo.NO);
@@ -148,7 +144,8 @@ public class Agente {
 					informacionAd.setMonstruo(Monstruo.POSIBLE);
 				}
 			}
-			if (informacionAd.getPrecipicio() != Precipicio.NO) {
+			// Solo se comprueba cuando es posible
+			if (informacionAd.getPrecipicio() == Precipicio.POSIBLE) {
 				if (!brisa) {
 					informacionAd.setPrecipicio(Precipicio.NO);
 				} else if (precipicioConfirmado) {
@@ -177,7 +174,7 @@ public class Agente {
 			if (!posicionSegura(posicion.adyacente(o))) {
 				continue;
 			}
-			if (BC.consultar(posicion.adyacente(o)).isVisitado()) {
+			if (baseConocimiento.consultar(posicion.adyacente(o)).isVisitado()) {
 				visitadas.add(o);
 			} else {
 				nuevas.add(o);
@@ -207,28 +204,6 @@ public class Agente {
 	}
 
 	/**
-	 * Determina si es posible que en una posición haya un monstruo dado el conocimiento obtenido
-	 *
-	 * @param p posición que se comprueba
-	 * @return boolean indicando si es posible
-	 */
-	public boolean posibleMonstruo(Posicion p) {
-		return posicionPosible(p) && BC.existeRegistro(p)
-				&& BC.consultar(p).getMonstruo() != Monstruo.NO;
-	}
-
-	/**
-	 * Determina si es posible que en una posición haya un precipicio dado el conocimiento obtenido
-	 *
-	 * @param p posición que se comprueba
-	 * @return boolean indicando si es posible
-	 */
-	public boolean posiblePrecipicio(Posicion p) {
-		return posicionPosible(p) && BC.existeRegistro(p)
-				&& BC.consultar(p).getPrecipicio() != Precipicio.NO;
-	}
-
-	/**
 	 * Determina si una posición de la cueva (combinación de fila y columna) es segura para visitar
 	 * dado el conocimiento obtenido
 	 *
@@ -236,20 +211,7 @@ public class Agente {
 	 * @return boolean indicando si es segura
 	 */
 	public boolean posicionSegura(Posicion p) {
-		return BC.existeRegistro(p) && BC.consultar(p).segura();
-	}
-
-	/**
-	 * Determina si una posición de la cueva (combinación de fila y columna) es posible dado el
-	 * conocimiento obtenido
-	 *
-	 * @param p posición que se quiere comprobar
-	 * @return boolean indicando si es posible
-	 */
-	public boolean posicionPosible(Posicion p) {
-		return p.esPosible()
-				&& (!filasConocidas || p.getFila() <= filas)
-				&& (!columnasConocidas || p.getColumna() <= columnas);
+		return baseConocimiento.existeRegistro(p) && baseConocimiento.consultar(p).segura();
 	}
 
 	//================================================================================
