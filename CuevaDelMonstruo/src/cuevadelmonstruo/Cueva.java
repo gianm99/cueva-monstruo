@@ -17,6 +17,7 @@ public class Cueva {
 	private final Agente agente;
 	private final int columnas;
 	private final int filas;
+	private int monstruos;
 	private final Cuadro[][] cuadros;
 	public static final int COLUMNAS_MIN = 3;
 	public static final int FILAS_MIN = 3;
@@ -32,7 +33,7 @@ public class Cueva {
 				cuadros[i][j] = new Cuadro();
 			}
 		}
-		agente = new Agente(new Posicion(1, 1), Orientacion.ESTE);
+		agente = new Agente(new Posicion(1, 1), Orientacion.ESTE, monstruos);
 	}
 
 	public void obtenerPercepciones() {
@@ -63,7 +64,55 @@ public class Cueva {
 	 */
 	public void realizarAcciones() {
 		agente.elegirAccion();
-		agente.mover();
+		if (agente.isEliminarMonstruo()) {
+			Posicion posicionMonstruo = agente.getPosicionMonstruo();
+			retirarMonstruo(posicionMonstruo);
+		}
+		agente.actuar();
+	}
+
+	/**
+	 * Retira un monstruo y su hedor de la cueva
+	 * @param p posición en la que estaba el monstruo
+	 */
+	private void retirarMonstruo(Posicion p) {
+		// Quitar el monstruo
+		cuadroEnposicion(p).setMonstruo(false);
+		// Quitar el hedor
+		// Anterior posición dle monstruo
+		if(!tieneMonstruoCerca(p)){
+			cuadroEnposicion(p).setHedor(false);
+		}
+		// Posiciones adyacentes
+		for(Orientacion o:Orientacion.values()){
+			if(!tieneMonstruoCerca(p.adyacente(o))){
+				cuadroEnposicion(p.adyacente(o)).setHedor(false);
+			}
+		}
+	}
+
+	/**
+	 * Determina si hay un monstruo en una posición adyacente
+	 * @param p posición al rededor de la cual se comprueba
+	 * @return boolean indicando si hay un monstruo en una posición adyacente
+	 */
+	private boolean tieneMonstruoCerca(Posicion p) {
+		for (Orientacion o : Orientacion.values()) {
+			Posicion adyacente = p.adyacente(o);
+			if (cuadroEnposicion(adyacente).isMonstruo()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Devuelve el cuadro en la posición indicada
+	 * @param p posición que se quiere comprobar
+	 * @return cuadro de la posición indicada
+	 */
+	private Cuadro cuadroEnposicion(Posicion p) {
+		return cuadros[p.getFila() - 1][p.getColumna() - 1];
 	}
 
 	/**
@@ -92,6 +141,7 @@ public class Cueva {
 				|| cuadros[fila - 1][columna - 1].isTesoro()) {
 			return;
 		}
+		monstruos++;
 		cuadros[fila - 1][columna - 1].setMonstruo(true);
 		expandirHedor(fila, columna);
 	}

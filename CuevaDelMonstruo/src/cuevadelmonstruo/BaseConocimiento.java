@@ -127,6 +127,20 @@ public class BaseConocimiento {
 		}
 	}
 
+	public Posicion monstruoVisible(Posicion agente) {
+		for (HashMap.Entry<Posicion, Informacion> entry : bc.entrySet()) {
+			Posicion posicion = entry.getKey();
+			Informacion informacion = entry.getValue();
+			if (informacion.getMonstruo() == Monstruo.SI
+					&& (posicion.getFila() == agente.getFila()
+					|| posicion.getColumna() == agente.getColumna())) {
+				informacion.setMonstruo(Monstruo.NO); // mata al monstruo
+				return posicion;
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Determina si una posición de la cueva es posible dado el conocimiento obtenido
 	 *

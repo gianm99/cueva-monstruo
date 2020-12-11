@@ -22,17 +22,21 @@ public class Agente {
 
 	private boolean tesoro;						// Tesoro encontrado
 	private boolean terminado;					// Ha regresado al punto de partida con el tesoro
+	private boolean eliminarMonstruo;			// En este ciclo se elimina un monstruo
+	private int flechas;						// Flechas disponibles
 	private Posicion posicion;					// Posición en la que está
+	private Posicion posicionMonstruo;			// Posición del último monstruo eliminado o null
 	private Orientacion orientacion;			// Hacia donde apunta
 	private Orientacion movimiento;				// Dirección a la que se va a mover
 	private Deque<Posicion> historial;			// Historial de movimientos hasta el tesoro
 	private BaseConocimiento baseConocimiento;	// Base de conocimiento
 
-	public Agente(Posicion posicion, Orientacion orientacion) {
+	public Agente(Posicion posicion, Orientacion orientacion, int monstruos) {
 		this.orientacion = orientacion;
 		this.posicion = posicion;
 		baseConocimiento = new BaseConocimiento();
 		historial = new ArrayDeque<>();
+		flechas = monstruos;
 	}
 
 	/**
@@ -46,6 +50,7 @@ public class Agente {
 	 * @param golpe
 	 */
 	public void actualizar(boolean hedor, boolean brisa, boolean resplandor, boolean golpe) {
+		eliminarMonstruo = false;
 		if (resplandor) {
 			tesoro = true;
 			return;
@@ -168,6 +173,11 @@ public class Agente {
 			movimiento = posicion.direccion(historial.pop());
 			return;
 		}
+		Posicion posicionMonstruo = baseConocimiento.monstruoVisible(posicion);
+		if (posicionMonstruo != null && flechas > 0) {
+			eliminarMonstruo = true;
+			flechas--;
+		}
 		List<Orientacion> visitadas = new ArrayList<>();
 		List<Orientacion> nuevas = new ArrayList<>();
 		for (Orientacion o : Orientacion.values()) {
@@ -192,7 +202,7 @@ public class Agente {
 	 * Se mueve hacia una nueva posición y actualiza los datos sobre la posición actual y la
 	 * orientación
 	 */
-	public void mover() {
+	public void actuar() {
 		orientacion = movimiento; // Se gira
 		System.out.println("Me muevo hacia el " + movimiento);
 		posicion = posicion.adyacente(movimiento); // Se mueve
@@ -247,6 +257,22 @@ public class Agente {
 
 	public void setTerminado(boolean terminado) {
 		this.terminado = terminado;
+	}
+
+	public boolean isEliminarMonstruo() {
+		return eliminarMonstruo;
+	}
+
+	public void setEliminarMonstruo(boolean eliminarMonstruo) {
+		this.eliminarMonstruo = eliminarMonstruo;
+	}
+
+	public Posicion getPosicionMonstruo() {
+		return posicionMonstruo;
+	}
+
+	public void setPosicionMonstruo(Posicion posicionMonstruo) {
+		this.posicionMonstruo = posicionMonstruo;
 	}
 
 	//================================================================================
