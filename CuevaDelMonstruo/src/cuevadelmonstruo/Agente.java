@@ -8,9 +8,11 @@ package cuevadelmonstruo;
 import cuevadelmonstruo.Informacion.Monstruo;
 import cuevadelmonstruo.Informacion.Precipicio;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.TreeSet;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Un agente que razona para encontrar el tesoro en la cueva del monstruo
@@ -161,20 +163,32 @@ public class Agente {
 	/**
 	 * Determina la acción a realizar por el agente en base al conocimiento que tiene sobre el
 	 * entorno. Si ya ha encontrado el tesoro, lo que hace es recorrer el camino de vuelta al punto
-	 * de partida.
+	 * de partida. Se elige una posición aleatoria de las adyacentes, dando prioridad a las no
+	 * visitadas.
 	 */
 	public void elegirAccion() {
 		if (tesoro) {
 			movimiento = posicion.direccion(historial.pop());
 			return;
 		}
-		TreeSet<Orientacion> opciones = new TreeSet<>(new PorPrioridad());
+		List<Orientacion> visitadas = new ArrayList<>();
+		List<Orientacion> nuevas = new ArrayList<>();
 		for (Orientacion o : Orientacion.values()) {
-			if (posicionSegura(posicion.adyacente(o))) {
-				opciones.add(o);
+			if (!posicionSegura(posicion.adyacente(o))) {
+				continue;
+			}
+			if (BC.consultar(posicion.adyacente(o)).isVisitado()) {
+				visitadas.add(o);
+			} else {
+				nuevas.add(o);
 			}
 		}
-		movimiento = opciones.first();
+		Random rand = new Random();
+		if (!nuevas.isEmpty()) {
+			movimiento = nuevas.get(rand.nextInt(nuevas.size()));
+		} else {
+			movimiento = visitadas.get(rand.nextInt(visitadas.size()));
+		}
 	}
 
 	/**
@@ -295,47 +309,10 @@ public class Agente {
 		/**
 		 * Girar una posición hacia atrás en el sentido horario
 		 *
-		 * @return la anterior posición posición en sentido horario
+		 * @return la anterior posición en sentido horario
 		 */
 		public Orientacion izquierda() {
 			return vals[Math.floorMod((this.ordinal() - 1), vals.length)];
 		}
 	}
-
-	/**
-	 * Implementación de la interfaz Comparator que permite comparar dos opciones y ordenarlas por
-	 * su prioridad
-	 */
-	private class PorPrioridad implements Comparator<Orientacion> {
-
-		/**
-		 * Compara dos opciones por su prioridad. Primero se ordena por si se han visitado o no (si
-		 * no se ha visitado, es más prioritaria) y después por la dirección en la que se encuentra
-		 * (se sigue un orden arbitrario unificado).
-		 *
-		 * @param o1 orientación 1
-		 * @param o2 orientación 2
-		 * @return int que indica la prioridad de 1 sobre 2. Si 1 es más prioritario se devuelve -1,
-		 * si son iguales 0 y en el otro caso 1.
-		 */
-		@Override
-		public int compare(Orientacion o1, Orientacion o2) {
-			Informacion i1 = BC.consultar(posicion.adyacente(o1));
-			Informacion i2 = BC.consultar(posicion.adyacente(o2));
-			if (i1.isVisitado() != i2.isVisitado()) {
-				// Si p1 no se ha visitado, entonces es la más prioritaria
-				return !i1.isVisitado() ? -1 : 1;
-			} else {
-				// Se comprueba el orden arbitrario de direcciones de esta manera se seguirá un 
-				// criterio unificado para tomar decisiones
-				if (o1 != o2) {
-					return o1.ordinal() < o2.ordinal() ? -1 : 1;
-				} else {
-					return 0;
-				}
-			}
-		}
-
-	}
-
 }
