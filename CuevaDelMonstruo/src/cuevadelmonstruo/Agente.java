@@ -173,7 +173,7 @@ public class Agente {
 			movimiento = posicion.direccion(historial.pop());
 			return;
 		}
-		Posicion posicionMonstruo = baseConocimiento.monstruoVisible(posicion);
+		posicionMonstruo = baseConocimiento.monstruoVisible(posicion);
 		if (posicionMonstruo != null && flechas > 0) {
 			eliminarMonstruo = true;
 			flechas--;
