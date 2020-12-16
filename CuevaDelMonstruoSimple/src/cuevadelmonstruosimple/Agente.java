@@ -3,10 +3,10 @@
  *
  * 06/12/2020
  */
-package cuevadelmonstruo;
+package cuevadelmonstruosimple;
 
-import cuevadelmonstruo.Informacion.Monstruo;
-import cuevadelmonstruo.Informacion.Precipicio;
+import cuevadelmonstruosimple.Informacion.Monstruo;
+import cuevadelmonstruosimple.Informacion.Precipicio;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -140,7 +140,7 @@ public class Agente {
 				}
 			}
 			// Solo se comprueba si es posible o se había confirmado
-			if (informacionAd.getMonstruo() == Monstruo.POSIBLE) {
+			if (informacionAd.getMonstruo() != Monstruo.NO) {
 				if (!hedor) {
 					informacionAd.setMonstruo(Monstruo.NO);
 				} else if (monstruoConfirmado) {
