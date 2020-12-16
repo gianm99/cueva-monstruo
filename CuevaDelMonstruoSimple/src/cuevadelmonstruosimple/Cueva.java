@@ -3,9 +3,9 @@
  *
  * 06/12/20
  */
-package cuevadelmonstruo;
+package cuevadelmonstruosimple;
 
-import cuevadelmonstruo.Agente.Orientacion;
+import cuevadelmonstruosimple.Agente.Orientacion;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
@@ -30,10 +30,10 @@ public class Cueva extends JPanel {
 	public static final int MAXIMO = 500;
 	public static int COSTADO;
 
-	public void configurar(int tam) {
-		filas = tam;
-		columnas = tam;
+	public void configurar(int filas, int columnas) {
 		COSTADO = MAXIMO / filas;
+		this.filas = filas;
+		this.columnas = columnas;
 		cuadros = new Cuadro[filas][columnas];
 		int y = 0;
 		for (int i = 0; i < filas; i++) {
@@ -109,7 +109,7 @@ public class Cueva extends JPanel {
 		// Quitar el monstruo
 		cuadroEnposicion(p).setMonstruo(false);
 		// Quitar el hedor
-		// Anterior posición del monstruo
+		// Anterior posición dle monstruo
 		if (!tieneMonstruoCerca(p)) {
 			cuadroEnposicion(p).setHedor(false);
 		}
@@ -153,7 +153,6 @@ public class Cueva extends JPanel {
 	 */
 	public void agregarAgente() {
 		agente = new Agente(new Posicion(1, 1), Orientacion.ESTE, monstruos);
-		cuadros[0][0].setAgente(true);
 	}
 
 	/**
@@ -238,7 +237,7 @@ public class Cueva extends JPanel {
 				|| cuadros[fila - 1][columna - 1].isTesoro()) {
 			return;
 		}
-		cuadros[fila - 1][columna - 1].setPrecipicio(true);
+		cuadros[fila - 1][columna - 1].setMonstruo(true);
 		expandirBrisa(fila, columna);
 	}
 

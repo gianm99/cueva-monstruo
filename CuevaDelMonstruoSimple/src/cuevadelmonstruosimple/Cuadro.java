@@ -3,7 +3,7 @@
  *
  * 06/12/20
  */
-package cuevadelmonstruo;
+package cuevadelmonstruosimple;
 
 /**
  * Un cuadro de la cueva que tiene unas características determinadas
@@ -29,19 +29,11 @@ public class Cuadro {
 
 	public Cuadro(Rectangle2D.Float rec) {
 		this.rec = rec;
-		this.rec.x+=2;
-		this.rec.y+=2;
-		this.rec.width-=2;
-		this.rec.height-=2;
 	}
 
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
-		Rectangle2D.Float borde = new Rectangle2D.Float(this.rec.x - 2, this.rec.y - 2,
-				this.rec.width + 2, this.rec.height + 2);
-		g2d.setColor(Color.BLACK);
-		g2d.fill(borde);
-		g2d.setColor(Color.WHITE);
+		g2d.setColor(Color.MAGENTA);
 		g2d.fill(this.rec);
 		if (agente && tesoro) {
 			imagen = new Imagen(Imagen.AGENTE_TESORO);

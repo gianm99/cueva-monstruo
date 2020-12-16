@@ -3,11 +3,11 @@
  *
  * 06/12/20
  */
-package cuevadelmonstruo;
+package cuevadelmonstruosimple;
 
-import cuevadelmonstruo.Agente.Orientacion;
-import cuevadelmonstruo.Informacion.Monstruo;
-import cuevadelmonstruo.Informacion.Precipicio;
+import cuevadelmonstruosimple.Agente.Orientacion;
+import cuevadelmonstruosimple.Informacion.Monstruo;
+import cuevadelmonstruosimple.Informacion.Precipicio;
 import java.util.HashMap;
 
 /**
@@ -104,7 +104,7 @@ public class BaseConocimiento {
 					informacion.setHedor(false);
 				}
 				// Solo se comprueba si había un monstruo o es posible
-				if (informacionAd.getMonstruo() == Monstruo.POSIBLE) {
+				if (informacionAd.getMonstruo() != Monstruo.NO) {
 					if (!informacion.isHedor()) {
 						informacionAd.setMonstruo(Monstruo.NO);
 					} else if (monstruoConfirmado) {
