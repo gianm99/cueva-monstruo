@@ -5,8 +5,6 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import java.util.Iterator;
-
 public class Drop extends Game {
 
     public SpriteBatch batch;
