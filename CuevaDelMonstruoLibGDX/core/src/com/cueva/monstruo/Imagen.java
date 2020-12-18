@@ -34,7 +34,7 @@ public class Imagen {
 	}
 
 	void paintComponent(Graphics g, float x, float y) {
-		g.drawImage(img, (int) x, (int) y, Cueva.COSTADO, Cueva.COSTADO, null);
+//		g.drawImage(img, (int) x, (int) y, Cueva.COSTADO, Cueva.COSTADO, null);
 	}
 
 }

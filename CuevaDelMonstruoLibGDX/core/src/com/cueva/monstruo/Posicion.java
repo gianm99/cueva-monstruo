@@ -1,7 +1,7 @@
-/**
- * Posicion
- *
- * 06/12/20
+/*
+  Posicion
+
+  06/12/20
  */
 package com.cueva.monstruo;
 

@@ -1,7 +1,7 @@
-/**
- * BaseConocimiento
- *
- * 06/12/20
+/*
+  BaseConocimiento
+
+  06/12/20
  */
 package com.cueva.monstruo;
 

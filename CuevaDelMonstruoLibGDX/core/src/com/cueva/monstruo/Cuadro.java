@@ -1,7 +1,7 @@
-/**
- * Cuadro
- *
- * 06/12/20
+/*
+  Cuadro
+
+  06/12/20
  */
 package com.cueva.monstruo;
 
@@ -24,46 +24,46 @@ public class Cuadro {
 	private boolean precipicio;	// Contiene un precipicio
 	private boolean brisa;		// Se puede sentir una brisa
 	private boolean agente;		// Contiene al agente
-	private Rectangle2D.Float rec;
+//	private Rectangle2D.Float rec;
 	private Imagen imagen;
 
-	public Cuadro(Rectangle2D.Float rec) {
-		this.rec = rec;
-		this.rec.x+=2;
-		this.rec.y+=2;
-		this.rec.width-=2;
-		this.rec.height-=2;
+	public Cuadro() {
+//		this.rec = rec;
+//		this.rec.x+=2;
+//		this.rec.y+=2;
+//		this.rec.width-=2;
+//		this.rec.height-=2;
 	}
 
-	public void paintComponent(Graphics g) {
-		Graphics2D g2d = (Graphics2D) g;
-		Rectangle2D.Float borde = new Rectangle2D.Float(this.rec.x - 2, this.rec.y - 2,
-				this.rec.width + 2, this.rec.height + 2);
-		g2d.setColor(Color.BLACK);
-		g2d.fill(borde);
-		g2d.setColor(Color.WHITE);
-		g2d.fill(this.rec);
-		if (agente && tesoro) {
-			imagen = new Imagen(Imagen.AGENTE_TESORO);
-			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
-		} else if (agente) {
-			imagen = new Imagen(Imagen.AGENTE);
-			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
-		} else if (tesoro) {
-			imagen = new Imagen(Imagen.TESORO);
-			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
-		} else if (monstruo && precipicio) {
-			imagen = new Imagen(Imagen.MONSTRUO_PRECIPICIO);
-			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
-		} else if (monstruo) {
-			imagen = new Imagen(Imagen.MONSTRUO);
-			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
-		} else if (precipicio) {
-			imagen = new Imagen(Imagen.PRECIPICIO);
-			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
-		}
-	}
-
+//	public void paintComponent(Graphics g) {
+//		Graphics2D g2d = (Graphics2D) g;
+//		Rectangle2D.Float borde = new Rectangle2D.Float(this.rec.x - 2, this.rec.y - 2,
+//				this.rec.width + 2, this.rec.height + 2);
+//		g2d.setColor(Color.BLACK);
+//		g2d.fill(borde);
+//		g2d.setColor(Color.WHITE);
+//		g2d.fill(this.rec);
+//		if (agente && tesoro) {
+//			imagen = new Imagen(Imagen.AGENTE_TESORO);
+//			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
+//		} else if (agente) {
+//			imagen = new Imagen(Imagen.AGENTE);
+//			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
+//		} else if (tesoro) {
+//			imagen = new Imagen(Imagen.TESORO);
+//			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
+//		} else if (monstruo && precipicio) {
+//			imagen = new Imagen(Imagen.MONSTRUO_PRECIPICIO);
+//			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
+//		} else if (monstruo) {
+//			imagen = new Imagen(Imagen.MONSTRUO);
+//			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
+//		} else if (precipicio) {
+//			imagen = new Imagen(Imagen.PRECIPICIO);
+//			this.imagen.paintComponent(g, this.rec.x, this.rec.y);
+//		}
+//	}
+//
 	//================================================================================
 	// Getters y setters
 	//================================================================================

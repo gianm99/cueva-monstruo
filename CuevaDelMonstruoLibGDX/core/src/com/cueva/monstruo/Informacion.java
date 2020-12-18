@@ -1,7 +1,7 @@
-/**
- * Información
- *
- * 07/12/20
+/*
+  Información
+
+  07/12/20
  */
 package com.cueva.monstruo;
 
