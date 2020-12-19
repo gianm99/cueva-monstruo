@@ -3,10 +3,10 @@
 
   06/12/2020
  */
-package com.cueva.monstruo;
+package com.cueva.monstruo.entitys;
 
-import com.cueva.monstruo.Informacion.Monstruo;
-import com.cueva.monstruo.Informacion.Precipicio;
+import com.cueva.monstruo.entitys.Informacion.Monstruo;
+import com.cueva.monstruo.entitys.Informacion.Precipicio;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;

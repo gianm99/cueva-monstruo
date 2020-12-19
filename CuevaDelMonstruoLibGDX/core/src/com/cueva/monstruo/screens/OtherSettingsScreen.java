@@ -1,4 +1,4 @@
-package com.cueva.monstruo;
+package com.cueva.monstruo.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.cueva.monstruo.CuevaDelMonstruo;
 
 public class OtherSettingsScreen implements Screen {
 	private CuevaDelMonstruo parent;
@@ -27,7 +28,7 @@ public class OtherSettingsScreen implements Screen {
 		stage.clear();
 		Gdx.input.setInputProcessor(stage);
 		Skin skin = new Skin(Gdx.files.internal("skin/plain-james-ui.json"));
-		Window window = new Window("Otras opciones. Configuracion de los obstaculos", skin);
+		Window window = new Window("Otras opciones/Obstaculos", skin);
 		window.setFillParent(true);
 		stage.addActor(window);
 		Table table = new Table();

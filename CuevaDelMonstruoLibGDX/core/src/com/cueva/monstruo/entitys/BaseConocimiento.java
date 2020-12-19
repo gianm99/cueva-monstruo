@@ -3,11 +3,11 @@
 
   06/12/20
  */
-package com.cueva.monstruo;
+package com.cueva.monstruo.entitys;
 
-import com.cueva.monstruo.Agente.Orientacion;
-import com.cueva.monstruo.Informacion.Monstruo;
-import com.cueva.monstruo.Informacion.Precipicio;
+import com.cueva.monstruo.entitys.Agente.Orientacion;
+import com.cueva.monstruo.entitys.Informacion.Monstruo;
+import com.cueva.monstruo.entitys.Informacion.Precipicio;
 import java.util.HashMap;
 
 /**

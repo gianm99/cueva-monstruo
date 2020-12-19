@@ -3,9 +3,9 @@
 
   06/12/20
  */
-package com.cueva.monstruo;
+package com.cueva.monstruo.entitys;
 
-import com.cueva.monstruo.Agente.Orientacion;
+import com.cueva.monstruo.entitys.Agente.Orientacion;
 
 /**
  * Una posición en la cueva del monstruo

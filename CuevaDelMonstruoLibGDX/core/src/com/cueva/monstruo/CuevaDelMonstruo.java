@@ -1,22 +1,31 @@
 package com.cueva.monstruo;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.cueva.monstruo.entitys.Cueva;
+import com.cueva.monstruo.screens.DemoScreen;
+import com.cueva.monstruo.screens.MainSettingsScreen;
+import com.cueva.monstruo.screens.MenuScreen;
+import com.cueva.monstruo.screens.OtherSettingsScreen;
 
 public class CuevaDelMonstruo extends Game {
-	private MenuScreen menuScreen;
-	private MainSettingsScreen mainSettingsScreen;
-	private OtherSettingsScreen otherSettingsScreen;
-	private GameScreen gameScreen;
+	private com.cueva.monstruo.screens.MenuScreen menuScreen;
+	private com.cueva.monstruo.screens.MainSettingsScreen mainSettingsScreen;
+	private com.cueva.monstruo.screens.OtherSettingsScreen otherSettingsScreen;
+	private DemoScreen demoScreen;
 	private AppPreferences preferences;
-	public Cueva cueva;
+	public com.cueva.monstruo.entitys.Cueva cueva;
 	public final static int MENU = 0;
 	public final static int SETTINGS_FIRST = 1;
 	public final static int SETTINGS_SECOND = 2;
 	public final static int DEMO = 3;
+	public final static int WIDTH=480;
+	public final static int HEIGHT=480;
 
 	@Override
 	public void create() {
-		menuScreen = new MenuScreen(this);
+		Gdx.graphics.setWindowedMode(WIDTH, HEIGHT);
+		menuScreen = new com.cueva.monstruo.screens.MenuScreen(this);
 		preferences = new AppPreferences();
 		cueva = new Cueva(getPreferences().getGameSize()); //tamaño por defecto
 		cueva.agregarTesoro(3, 3); //posición por defecto
@@ -52,8 +61,8 @@ public class CuevaDelMonstruo extends Game {
 				this.setScreen(otherSettingsScreen);
 				break;
 			case DEMO:
-				if (gameScreen == null) gameScreen = new GameScreen(this);
-				this.setScreen(gameScreen);
+				if (demoScreen == null) demoScreen = new DemoScreen(this);
+				this.setScreen(demoScreen);
 				break;
 		}
 	}

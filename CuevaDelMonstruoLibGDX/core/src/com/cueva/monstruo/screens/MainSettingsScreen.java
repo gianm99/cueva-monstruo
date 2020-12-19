@@ -1,4 +1,4 @@
-package com.cueva.monstruo;
+package com.cueva.monstruo.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.cueva.monstruo.entitys.Cueva;
+import com.cueva.monstruo.CuevaDelMonstruo;
 
 public class MainSettingsScreen implements Screen {
 	private CuevaDelMonstruo parent;
@@ -27,7 +29,7 @@ public class MainSettingsScreen implements Screen {
 		stage.clear();
 		Gdx.input.setInputProcessor(stage);
 		Skin skin = new Skin(Gdx.files.internal("skin/plain-james-ui.json"));
-		Window window = new Window("Opciones. Configuracion de la cueva", skin);
+		Window window = new Window("Opciones/Cueva", skin);
 		window.setFillParent(true);
 		stage.addActor(window);
 		Table table = new Table();
@@ -41,7 +43,7 @@ public class MainSettingsScreen implements Screen {
 		nextButton.setDisabled(true); //por defecto, está desactivado
 		//tamaño de la cueva
 		final SelectBox<Integer> sizeGameSelect = new SelectBox<>(skin);
-		sizeGameSelect.setItems(3, 4, 5, 6, 7, 8, 9, 10, 15, 20);
+		sizeGameSelect.setItems(3, 4, 5, 6, 8, 10, 12, 15, 16, 20); //tamaños seguros
 		sizeGameSelect.setSelected(parent.getPreferences().getGameSize());
 		//variable para los select de fila y columna
 		Integer[] range = new Integer[20];

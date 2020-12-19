@@ -3,7 +3,7 @@
 
   07/12/20
  */
-package com.cueva.monstruo;
+package com.cueva.monstruo.entitys;
 
 /**
  * Una información sobre una posición de la cueva
