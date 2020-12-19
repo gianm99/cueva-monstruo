@@ -1,6 +1,7 @@
 package com.cueva.monstruo.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -56,7 +57,10 @@ public class DemoScreen implements Screen {
 		}
 		game.batch.end();
 		//procesar input de usuario
-
+		if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+			game.changeScreen(CuevaDelMonstruo.MENU);
+//			dispose();
+		}
 	}
 
 	@Override
