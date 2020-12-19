@@ -12,15 +12,15 @@ import com.cueva.monstruo.entitys.Cueva;
 import com.cueva.monstruo.CuevaDelMonstruo;
 
 public class SettingsFirstScreen implements Screen {
-	private CuevaDelMonstruo parent;
+	final CuevaDelMonstruo game;
 	private Stage stage;
 	private Label sizeGameLabel;
 	private Label rowChestLabel;
 	private Label columnChestLabel;
 	private boolean chestSet;
 
-	public SettingsFirstScreen(CuevaDelMonstruo cuevaDelMonstruo) {
-		this.parent = cuevaDelMonstruo;
+	public SettingsFirstScreen(CuevaDelMonstruo game) {
+		this.game = game;
 		stage = new Stage(new ScreenViewport());
 	}
 
@@ -44,7 +44,7 @@ public class SettingsFirstScreen implements Screen {
 		//tamaño de la cueva
 		final SelectBox<Integer> sizeGameSelect = new SelectBox<>(skin);
 		sizeGameSelect.setItems(3, 4, 5, 6, 8, 10, 12, 15, 16, 20); //tamaños seguros
-		sizeGameSelect.setSelected(parent.getPreferences().getGameSize());
+		sizeGameSelect.setSelected(game.getPreferences().getGameSize());
 		//variable para los select de fila y columna
 		Integer[] range = new Integer[20];
 		for (int i = 0; i < range.length; i++) range[i] = i + 1; //1..20
@@ -62,28 +62,28 @@ public class SettingsFirstScreen implements Screen {
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				parent.changeScreen(CuevaDelMonstruo.MENU);
+				game.changeScreen(CuevaDelMonstruo.MENU);
 			}
 		});
 		nextButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				parent.changeScreen(CuevaDelMonstruo.SETTINGS_SECOND);
+				game.changeScreen(CuevaDelMonstruo.SETTINGS_SECOND);
 			}
 		});
 		sizeGameSelect.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				parent.getPreferences().setGameSize(sizeGameSelect.getSelected());
-				parent.cueva = new Cueva(sizeGameSelect.getSelected()); //se sobreescribe cueva
-				chestSet = parent.cueva.agregarTesoro(rowChestSelect.getSelected(), columnChestSelect.getSelected());
+				game.getPreferences().setGameSize(sizeGameSelect.getSelected());
+				game.cueva = new Cueva(sizeGameSelect.getSelected()); //se sobreescribe cueva
+				chestSet = game.cueva.agregarTesoro(rowChestSelect.getSelected(), columnChestSelect.getSelected());
 				if (chestSet) nextButton.setDisabled(false);
 			}
 		});
 		addChestButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				chestSet = parent.cueva.agregarTesoro(rowChestSelect.getSelected(), columnChestSelect.getSelected());
+				chestSet = game.cueva.agregarTesoro(rowChestSelect.getSelected(), columnChestSelect.getSelected());
 				if (chestSet) nextButton.setDisabled(false);
 			}
 		});

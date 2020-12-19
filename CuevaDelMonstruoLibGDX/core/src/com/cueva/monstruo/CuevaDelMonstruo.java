@@ -2,6 +2,7 @@ package com.cueva.monstruo;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.cueva.monstruo.entitys.Cueva;
 import com.cueva.monstruo.screens.DemoScreen;
 import com.cueva.monstruo.screens.SettingsFirstScreen;
@@ -14,13 +15,14 @@ public class CuevaDelMonstruo extends Game {
 	private SettingsSecondScreen settingsSecondScreen;
 	private DemoScreen demoScreen;
 	private AppPreferences preferences;
-	public com.cueva.monstruo.entitys.Cueva cueva;
+	public Cueva cueva;
+	public SpriteBatch batch;
 	public final static int MENU = 0;
 	public final static int SETTINGS_FIRST = 1;
 	public final static int SETTINGS_SECOND = 2;
 	public final static int DEMO = 3;
-	public final static int WIDTH=480;
-	public final static int HEIGHT=480;
+	public final static int WIDTH = 480;
+	public final static int HEIGHT = 480;
 
 	@Override
 	public void create() {
@@ -29,6 +31,7 @@ public class CuevaDelMonstruo extends Game {
 		preferences = new AppPreferences();
 		cueva = new Cueva(getPreferences().getGameSize()); //tamaño por defecto
 		cueva.agregarTesoro(3, 3); //posición por defecto
+		batch = new SpriteBatch();
 		setScreen(menuScreen);
 	}
 

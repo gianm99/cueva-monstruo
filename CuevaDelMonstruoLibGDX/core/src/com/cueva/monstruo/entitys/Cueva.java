@@ -17,7 +17,8 @@ public class Cueva {
 	private Agente agente;
 	private int size;
 	private int monstruos;
-	private Cuadro[][] cuadros;
+	private Posicion tesoro;
+	public Cuadro[][] cuadros;
 	public final int costado;
 	public static final int COLUMNAS_MAX = 20;
 	public static final int FILAS_MAX = 20;
@@ -33,6 +34,7 @@ public class Cueva {
 				cuadros[i][j] = new Cuadro();
 			}
 		}
+		agregarAgente();
 	}
 
 	public void obtenerPercepciones() {
@@ -143,8 +145,12 @@ public class Cueva {
 				|| cuadros[fila - 1][columna - 1].isPrecipicio()) {
 			return false;
 		}
+		//si había otro tesoro, se sustituye por el nuevo
+		if (tesoro != null) {
+			cuadroEnPosicion(tesoro).setTesoro(false);
+		}
 		cuadros[fila - 1][columna - 1].setTesoro(true);
-
+		tesoro = new Posicion(fila, columna);
 		return true;
 	}
 
@@ -304,7 +310,7 @@ public class Cueva {
 		return fila > 0 && fila <= size && columna > 0 && columna <= size;
 	}
 
-	public int getSize(){
+	public int getSize() {
 		return size;
 	}
 }

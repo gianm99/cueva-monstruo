@@ -11,15 +11,15 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.cueva.monstruo.CuevaDelMonstruo;
 
 public class SettingsSecondScreen implements Screen {
-	private CuevaDelMonstruo parent;
+	final CuevaDelMonstruo game;
 	private Stage stage;
 	private Label rowMonsterLabel;
 	private Label columnMonsterLabel;
 	private Label rowCliffLabel;
 	private Label columnCliffLabel;
 
-	public SettingsSecondScreen(CuevaDelMonstruo cuevaDelMonstruo) {
-		this.parent = cuevaDelMonstruo;
+	public SettingsSecondScreen(CuevaDelMonstruo game) {
+		this.game = game;
 		stage = new Stage(new ScreenViewport());
 	}
 
@@ -40,7 +40,7 @@ public class SettingsSecondScreen implements Screen {
 		//botón para comenzar la demostración
 		final TextButton nextButton = new TextButton("Comenzar", skin);
 		//variable para los select de fila y columna
-		Integer[] range = new Integer[parent.cueva.getSize()];
+		Integer[] range = new Integer[game.cueva.getSize()];
 		for (int i = 0; i < range.length; i++) range[i] = i + 1; //1..size
 		//fila para un monstruo
 		final SelectBox<Integer> rowMonsterSelect = new SelectBox<>(skin);
@@ -66,25 +66,25 @@ public class SettingsSecondScreen implements Screen {
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				parent.changeScreen(CuevaDelMonstruo.SETTINGS_FIRST);
+				game.changeScreen(CuevaDelMonstruo.SETTINGS_FIRST);
 			}
 		});
 		nextButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				parent.changeScreen(CuevaDelMonstruo.DEMO);
+				game.changeScreen(CuevaDelMonstruo.DEMO);
 			}
 		});
 		addMonsterButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				parent.cueva.agregarMonstruo(rowMonsterSelect.getSelected(), columnMonsterSelect.getSelected());
+				game.cueva.agregarMonstruo(rowMonsterSelect.getSelected(), columnMonsterSelect.getSelected());
 			}
 		});
 		addCliffButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				parent.cueva.agregarPrecipicio(rowCliffSelect.getSelected(), columnCliffSelect.getSelected());
+				game.cueva.agregarPrecipicio(rowCliffSelect.getSelected(), columnCliffSelect.getSelected());
 			}
 		});
 		rowMonsterLabel=new Label("Monstruo (fila):",skin);
