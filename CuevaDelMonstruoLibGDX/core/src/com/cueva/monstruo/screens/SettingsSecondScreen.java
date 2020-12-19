@@ -91,7 +91,6 @@ public class SettingsSecondScreen implements Screen {
 		columnMonsterLabel=new Label("Monstruo (columna):",skin);
 		rowCliffLabel=new Label("Precipicio (fila):",skin);
 		columnCliffLabel=new Label("Precipicio (columna):",skin);
-
 		table.row().pad(10, 0, 0, 10);
 		table.add(rowMonsterLabel).left();
 		table.add(rowMonsterSelect);
@@ -100,7 +99,6 @@ public class SettingsSecondScreen implements Screen {
 		table.add(columnMonsterSelect);
 		table.row().pad(10, 0, 0, 10);
 		table.add(addMonsterButton).colspan(2);
-
 		table.row().pad(10, 0, 0, 10);
 		table.add(rowCliffLabel).left();
 		table.add(rowCliffSelect);

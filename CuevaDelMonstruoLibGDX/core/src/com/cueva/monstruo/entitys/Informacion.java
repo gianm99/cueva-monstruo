@@ -29,9 +29,6 @@ public class Informacion {
 		return monstruo == Monstruo.NO && precipicio == Precipicio.NO;
 	}
 
-	//================================================================================
-	// Getters y setters
-	//================================================================================
 	public boolean isHedor() {
 		return hedor;
 	}

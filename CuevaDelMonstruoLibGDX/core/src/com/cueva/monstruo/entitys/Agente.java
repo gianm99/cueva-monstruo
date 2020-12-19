@@ -169,6 +169,7 @@ public class Agente {
 	 * visitadas.
 	 */
 	public void elegirAccion() {
+		//TODO Hacer algo más óptimo
 		if (tesoro) {
 			movimiento = posicion.direccion(historial.pop());
 			return;
@@ -225,9 +226,6 @@ public class Agente {
 		return baseConocimiento.existeRegistro(p) && baseConocimiento.consultar(p).segura();
 	}
 
-	//================================================================================
-	// Getters y setters
-	//================================================================================
 	public Posicion getPosicion() {
 		return posicion;
 	}
@@ -276,9 +274,6 @@ public class Agente {
 		this.posicionMonstruo = posicionMonstruo;
 	}
 
-	//================================================================================
-	// Enums y clases
-	//================================================================================
 	/**
 	 * Orientación que puede tener un agente
 	 */

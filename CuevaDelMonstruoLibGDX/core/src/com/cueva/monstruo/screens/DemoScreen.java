@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.cueva.monstruo.CuevaDelMonstruo;
 import com.cueva.monstruo.entitys.Cuadro;
 import com.cueva.monstruo.entitys.Cueva;
@@ -21,6 +22,8 @@ public class DemoScreen implements Screen {
 	private Texture tesoroCerrado;
 	private Texture tesoroAbierto;
 	private OrthographicCamera camara;
+	private boolean autoPlay;
+	private long lastMoveTime;
 
 	public DemoScreen(CuevaDelMonstruo game) {
 		this.game = game;
@@ -57,15 +60,24 @@ public class DemoScreen implements Screen {
 		}
 		game.batch.end();
 		//procesar input de usuario
-		if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
 			game.changeScreen(CuevaDelMonstruo.MENU);
-//			dispose();
+		}
+		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+			autoPlay = !autoPlay;
+		}
+		if (!cueva.haTerminado() && TimeUtils.nanoTime() - lastMoveTime > 500000000
+				&& (autoPlay || Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
+			cueva.obtenerPercepciones();
+			cueva.realizarAcciones();
+			lastMoveTime = TimeUtils.nanoTime();
 		}
 	}
 
 	@Override
 	public void show() {
-		this.cueva=game.cueva; //recargar la cueva
+		this.cueva = game.cueva; //recargar la cueva
+		autoPlay = false;
 		//cargar las texturas
 		agente = escalarTextura(new Pixmap(Gdx.files.internal("agent.png")));
 		monstruo = escalarTextura(new Pixmap(Gdx.files.internal("monster.png")));
@@ -84,6 +96,7 @@ public class DemoScreen implements Screen {
 	 * @param original Pixmap que se quiere escalar y convertir en Texture
 	 * @return Texture que contiene la imagen escalada
 	 */
+	@org.jetbrains.annotations.NotNull
 	private Texture escalarTextura(Pixmap original) {
 		int w = CuevaDelMonstruo.WIDTH;
 		int h = CuevaDelMonstruo.HEIGHT;
