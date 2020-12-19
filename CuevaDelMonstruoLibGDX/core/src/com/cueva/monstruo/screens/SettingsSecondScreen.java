@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.cueva.monstruo.CuevaDelMonstruo;
+import com.cueva.monstruo.entitys.Cueva;
 
 public class SettingsSecondScreen implements Screen {
 	final CuevaDelMonstruo game;
@@ -49,13 +50,13 @@ public class SettingsSecondScreen implements Screen {
 		//columna para un monstruo
 		final SelectBox<Integer> columnMonsterSelect = new SelectBox<>(skin);
 		columnMonsterSelect.setItems(range);
-		columnMonsterSelect.setSelected(3);
+		columnMonsterSelect.setSelected(Cueva.DEFAULT_SIZE);
 		//botón para añadir un monstruo
 		final TextButton addMonsterButton = new TextButton("Confirmar", skin);
 		//fila para un precipicio
 		final SelectBox<Integer> rowCliffSelect = new SelectBox<>(skin);
 		rowCliffSelect.setItems(range);
-		rowCliffSelect.setSelected(3);
+		rowCliffSelect.setSelected(Cueva.DEFAULT_SIZE);
 		//columna para un precipicio
 		final SelectBox<Integer> columnCliffSelect = new SelectBox<>(skin);
 		columnCliffSelect.setItems(range);

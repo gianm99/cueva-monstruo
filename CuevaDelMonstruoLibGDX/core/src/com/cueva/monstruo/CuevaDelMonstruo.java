@@ -30,7 +30,7 @@ public class CuevaDelMonstruo extends Game {
 		menuScreen = new com.cueva.monstruo.screens.MenuScreen(this);
 		preferences = new AppPreferences();
 		cueva = new Cueva(getPreferences().getGameSize()); //tamaño por defecto
-		cueva.agregarTesoro(3, 3); //posición por defecto
+		cueva.agregarTesoro(Cueva.DEFAULT_SIZE, Cueva.DEFAULT_SIZE); //posición por defecto
 		batch = new SpriteBatch();
 		setScreen(menuScreen);
 	}

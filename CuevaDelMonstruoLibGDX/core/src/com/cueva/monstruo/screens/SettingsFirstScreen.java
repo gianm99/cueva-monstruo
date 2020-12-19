@@ -58,11 +58,11 @@ public class SettingsFirstScreen implements Screen {
 		//fila del tesoro
 		rowChestSelect = new SelectBox<>(skin);
 		rowChestSelect.setItems(range);
-		rowChestSelect.setSelected(3);
+		rowChestSelect.setSelected(Cueva.DEFAULT_SIZE);
 		//columna del tesoro
 		columnChestSelect = new SelectBox<>(skin);
 		columnChestSelect.setItems(range);
-		columnChestSelect.setSelected(3);
+		columnChestSelect.setSelected(Cueva.DEFAULT_SIZE);
 		//botón para añadir el tesoro
 		addChestButton = new TextButton("Confirmar", skin);
 		//añadir listeners
@@ -93,8 +93,6 @@ public class SettingsFirstScreen implements Screen {
 				for (int i = 0; i < range.length; i++) range[i] = i + 1; //1..20
 				rowChestSelect.setItems(range);
 				columnChestSelect.setItems(range);
-//				chestSet = game.cueva.agregarTesoro(rowChestSelect.getSelected(), columnChestSelect.getSelected());
-//				if (chestSet) nextButton.setDisabled(false);
 				nextButton.setDisabled(true);
 			}
 		});
@@ -122,6 +120,7 @@ public class SettingsFirstScreen implements Screen {
 		table.row().pad(10, 0, 0, 10);
 		table.add(backButton).left();
 		table.add(nextButton);
+		game.cueva = new Cueva(sizeGameSelect.getSelected());
 	}
 
 	@Override
