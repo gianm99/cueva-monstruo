@@ -25,9 +25,6 @@ public class Cuadro {
 	private boolean brisa;                	//hay brisa
 	private boolean agente;                	//el agente está en el cuadro
 
-	//================================================================================
-	// Getters y setters
-	//================================================================================
 	public boolean isTesoro() {
 		return tesoro;
 	}
