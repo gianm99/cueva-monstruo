@@ -169,6 +169,7 @@ public class Agente {
 	 * visitadas.
 	 */
 	public void elegirAccion() {
+		//TODO Hacer algo más óptimo
 		if (tesoro) {
 			movimiento = posicion.direccion(historial.pop());
 			return;

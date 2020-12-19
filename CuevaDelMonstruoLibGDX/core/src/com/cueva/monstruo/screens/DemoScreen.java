@@ -96,6 +96,7 @@ public class DemoScreen implements Screen {
 	 * @param original Pixmap que se quiere escalar y convertir en Texture
 	 * @return Texture que contiene la imagen escalada
 	 */
+	@org.jetbrains.annotations.NotNull
 	private Texture escalarTextura(Pixmap original) {
 		int w = CuevaDelMonstruo.WIDTH;
 		int h = CuevaDelMonstruo.HEIGHT;
