@@ -24,36 +24,6 @@ public class DemoScreen implements Screen {
 	public DemoScreen(CuevaDelMonstruo game) {
 		this.game = game;
 		this.cueva = game.cueva;
-		//cargar las texturas
-		agente = escalarTextura(new Pixmap(Gdx.files.internal("agent.png")));
-		monstruo = escalarTextura(new Pixmap(Gdx.files.internal("monster.png")));
-		precipicio = escalarTextura(new Pixmap(Gdx.files.internal("trap.png")));
-		suelo = escalarTextura(new Pixmap(Gdx.files.internal("floor.png")));
-		tesoroCerrado = escalarTextura(new Pixmap(Gdx.files.internal("chest_closed.png")));
-		tesoroAbierto = escalarTextura(new Pixmap(Gdx.files.internal("chest_open.png")));
-		//crear la cámara
-		camara = new OrthographicCamera();
-		camara.setToOrtho(false, 480, 480);
-	}
-
-	/**
-	 * Escala una imagen al tamaño de celda que se necesita para mostrar la demo correctamente
-	 *
-	 * @param original Pixmap que se quiere escalar y convertir en Texture
-	 * @return Texture que contiene la imagen escalada
-	 */
-	private Texture escalarTextura(Pixmap original) {
-		int w = CuevaDelMonstruo.WIDTH;
-		int h = CuevaDelMonstruo.HEIGHT;
-		int size = cueva.getSize();
-		Pixmap escalada = new Pixmap(w / size, h / size, original.getFormat());
-		escalada.drawPixmap(original,
-				0, 0, original.getWidth(), original.getHeight(),
-				0, 0, escalada.getWidth(), escalada.getHeight());
-		Texture textura = new Texture(escalada);
-		escalada.dispose();
-		original.dispose();
-		return textura;
 	}
 
 	@Override
@@ -91,7 +61,37 @@ public class DemoScreen implements Screen {
 
 	@Override
 	public void show() {
+		this.cueva=game.cueva; //recargar la cueva
+		//cargar las texturas
+		agente = escalarTextura(new Pixmap(Gdx.files.internal("agent.png")));
+		monstruo = escalarTextura(new Pixmap(Gdx.files.internal("monster.png")));
+		precipicio = escalarTextura(new Pixmap(Gdx.files.internal("trap.png")));
+		suelo = escalarTextura(new Pixmap(Gdx.files.internal("floor.png")));
+		tesoroCerrado = escalarTextura(new Pixmap(Gdx.files.internal("chest_closed.png")));
+		tesoroAbierto = escalarTextura(new Pixmap(Gdx.files.internal("chest_open.png")));
+		//crear la cámara
+		camara = new OrthographicCamera();
+		camara.setToOrtho(false, 480, 480);
+	}
 
+	/**
+	 * Escala una imagen al tamaño de celda que se necesita para mostrar la demo correctamente
+	 *
+	 * @param original Pixmap que se quiere escalar y convertir en Texture
+	 * @return Texture que contiene la imagen escalada
+	 */
+	private Texture escalarTextura(Pixmap original) {
+		int w = CuevaDelMonstruo.WIDTH;
+		int h = CuevaDelMonstruo.HEIGHT;
+		int size = cueva.getSize();
+		Pixmap escalada = new Pixmap(w / size, h / size, original.getFormat());
+		escalada.drawPixmap(original,
+				0, 0, original.getWidth(), original.getHeight(),
+				0, 0, escalada.getWidth(), escalada.getHeight());
+		Texture textura = new Texture(escalada);
+		escalada.dispose();
+		original.dispose();
+		return textura;
 	}
 
 	@Override
