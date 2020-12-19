@@ -22,6 +22,7 @@ public class Cueva {
 	public final int costado;
 	public static final int COLUMNAS_MAX = 20;
 	public static final int FILAS_MAX = 20;
+	public static final int DEFAULT_SIZE = 3;
 
 	public Cueva(int size) {
 		this.size = size;

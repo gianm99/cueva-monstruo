@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.cueva.monstruo.CuevaDelMonstruo;
+import com.cueva.monstruo.entitys.Cueva;
 
 public class MenuScreen implements Screen {
 	final CuevaDelMonstruo game;
@@ -23,6 +24,8 @@ public class MenuScreen implements Screen {
 
 	@Override
 	public void show() {
+		game.cueva=new Cueva(Cueva.DEFAULT_SIZE);
+		game.cueva.agregarTesoro(Cueva.DEFAULT_SIZE, Cueva.DEFAULT_SIZE);
 		stage.clear();
 		Gdx.input.setInputProcessor(stage);
 		Skin skin = new Skin(Gdx.files.internal("skin/plain-james-ui.json"));
