@@ -1,4 +1,4 @@
-package com.cueva.monstruo;
+package com.cueva.monstruo.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -10,13 +10,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.cueva.monstruo.CuevaDelMonstruo;
 
 public class MenuScreen implements Screen {
-	private CuevaDelMonstruo parent;
+	final CuevaDelMonstruo game;
 	private Stage stage;
 
-	public MenuScreen(CuevaDelMonstruo cuevaDelMonstruo) {
-		this.parent = cuevaDelMonstruo;
+	public MenuScreen(CuevaDelMonstruo game) {
+		this.game = game;
 		stage = new Stage(new ScreenViewport());
 	}
 
@@ -49,13 +50,13 @@ public class MenuScreen implements Screen {
 		newGame.addListener(new ChangeListener(){
 			@Override
 			public void changed(ChangeEvent event, Actor actor){
-				parent.changeScreen(CuevaDelMonstruo.DEMO);
+				game.changeScreen(CuevaDelMonstruo.DEMO);
 			}
 		});
 		preferences.addListener(new ChangeListener(){
 			@Override
 			public void changed(ChangeEvent event, Actor actor){
-				parent.changeScreen(CuevaDelMonstruo.SETTINGS_FIRST);
+				game.changeScreen(CuevaDelMonstruo.SETTINGS_FIRST);
 			}
 		});
 	}

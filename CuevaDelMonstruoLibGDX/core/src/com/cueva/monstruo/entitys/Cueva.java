@@ -3,11 +3,9 @@
 
   06/12/20
  */
-package com.cueva.monstruo;
+package com.cueva.monstruo.entitys;
 
-import com.cueva.monstruo.Agente.Orientacion;
-
-import java.awt.geom.Rectangle2D;
+import com.cueva.monstruo.entitys.Agente.Orientacion;
 
 /**
  * Una cueva con unas características determinadas
@@ -19,7 +17,8 @@ public class Cueva {
 	private Agente agente;
 	private int size;
 	private int monstruos;
-	private Cuadro[][] cuadros;
+	private Posicion tesoro;
+	public Cuadro[][] cuadros;
 	public final int costado;
 	public static final int COLUMNAS_MAX = 20;
 	public static final int FILAS_MAX = 20;
@@ -27,31 +26,15 @@ public class Cueva {
 	public Cueva(int size) {
 		this.size = size;
 		costado = 480 / size;
-		cuadros = new Cuadro[size][this.size];
-		int y = 0;
-		for (int i = 0; i < size; i++) {
-			int x = 0;
-			for (int j = 0; j < size; j++) {
-				cuadros[i][j] = new Cuadro();
-			}
-		}
-		//TODO Hacer algo con lo que se tenga que dibujar
-	}
-
-	public void configurar(int tam) {
-		size = tam;
-//		COSTADO = MAXIMO / size;
 		cuadros = new Cuadro[size][size];
 		int y = 0;
 		for (int i = 0; i < size; i++) {
 			int x = 0;
 			for (int j = 0; j < size; j++) {
-				Rectangle2D.Float r = new Rectangle2D.Float(x, y, costado, costado);
 				cuadros[i][j] = new Cuadro();
-				x += costado;
 			}
-			y += costado;
 		}
+		agregarAgente();
 	}
 
 	public void obtenerPercepciones() {
@@ -162,7 +145,12 @@ public class Cueva {
 				|| cuadros[fila - 1][columna - 1].isPrecipicio()) {
 			return false;
 		}
+		//si había otro tesoro, se sustituye por el nuevo
+		if (tesoro != null) {
+			cuadroEnPosicion(tesoro).setTesoro(false);
+		}
 		cuadros[fila - 1][columna - 1].setTesoro(true);
+		tesoro = new Posicion(fila, columna);
 		return true;
 	}
 
@@ -322,7 +310,7 @@ public class Cueva {
 		return fila > 0 && fila <= size && columna > 0 && columna <= size;
 	}
 
-	public int getSize(){
+	public int getSize() {
 		return size;
 	}
 }

@@ -1,25 +1,37 @@
 package com.cueva.monstruo;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.cueva.monstruo.entitys.Cueva;
+import com.cueva.monstruo.screens.DemoScreen;
+import com.cueva.monstruo.screens.SettingsFirstScreen;
+import com.cueva.monstruo.screens.MenuScreen;
+import com.cueva.monstruo.screens.SettingsSecondScreen;
 
 public class CuevaDelMonstruo extends Game {
-	private MenuScreen menuScreen;
-	private MainSettingsScreen mainSettingsScreen;
-	private OtherSettingsScreen otherSettingsScreen;
-	private GameScreen gameScreen;
+	private com.cueva.monstruo.screens.MenuScreen menuScreen;
+	private SettingsFirstScreen settingsFirstScreen;
+	private SettingsSecondScreen settingsSecondScreen;
+	private DemoScreen demoScreen;
 	private AppPreferences preferences;
 	public Cueva cueva;
+	public SpriteBatch batch;
 	public final static int MENU = 0;
 	public final static int SETTINGS_FIRST = 1;
 	public final static int SETTINGS_SECOND = 2;
 	public final static int DEMO = 3;
+	public final static int WIDTH = 480;
+	public final static int HEIGHT = 480;
 
 	@Override
 	public void create() {
-		menuScreen = new MenuScreen(this);
+		Gdx.graphics.setWindowedMode(WIDTH, HEIGHT);
+		menuScreen = new com.cueva.monstruo.screens.MenuScreen(this);
 		preferences = new AppPreferences();
 		cueva = new Cueva(getPreferences().getGameSize()); //tamaño por defecto
 		cueva.agregarTesoro(3, 3); //posición por defecto
+		batch = new SpriteBatch();
 		setScreen(menuScreen);
 	}
 
@@ -44,16 +56,16 @@ public class CuevaDelMonstruo extends Game {
 				this.setScreen(menuScreen);
 				break;
 			case SETTINGS_FIRST:
-				if (mainSettingsScreen == null) mainSettingsScreen = new MainSettingsScreen(this);
-				this.setScreen(mainSettingsScreen);
+				if (settingsFirstScreen == null) settingsFirstScreen = new SettingsFirstScreen(this);
+				this.setScreen(settingsFirstScreen);
 				break;
 			case SETTINGS_SECOND:
-				if (otherSettingsScreen == null) otherSettingsScreen = new OtherSettingsScreen(this);
-				this.setScreen(otherSettingsScreen);
+				if (settingsSecondScreen == null) settingsSecondScreen = new SettingsSecondScreen(this);
+				this.setScreen(settingsSecondScreen);
 				break;
 			case DEMO:
-				if (gameScreen == null) gameScreen = new GameScreen(this);
-				this.setScreen(gameScreen);
+				if (demoScreen == null) demoScreen = new DemoScreen(this);
+				this.setScreen(demoScreen);
 				break;
 		}
 	}
