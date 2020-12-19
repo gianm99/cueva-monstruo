@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.cueva.monstruo.entitys.Cueva;
 import com.cueva.monstruo.CuevaDelMonstruo;
 
-public class MainSettingsScreen implements Screen {
+public class SettingsFirstScreen implements Screen {
 	private CuevaDelMonstruo parent;
 	private Stage stage;
 	private Label sizeGameLabel;
@@ -19,7 +19,7 @@ public class MainSettingsScreen implements Screen {
 	private Label columnChestLabel;
 	private boolean chestSet;
 
-	public MainSettingsScreen(CuevaDelMonstruo cuevaDelMonstruo) {
+	public SettingsFirstScreen(CuevaDelMonstruo cuevaDelMonstruo) {
 		this.parent = cuevaDelMonstruo;
 		stage = new Stage(new ScreenViewport());
 	}

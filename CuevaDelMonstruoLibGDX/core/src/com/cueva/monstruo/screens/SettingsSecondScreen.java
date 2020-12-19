@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.cueva.monstruo.CuevaDelMonstruo;
 
-public class OtherSettingsScreen implements Screen {
+public class SettingsSecondScreen implements Screen {
 	private CuevaDelMonstruo parent;
 	private Stage stage;
 	private Label rowMonsterLabel;
@@ -18,7 +18,7 @@ public class OtherSettingsScreen implements Screen {
 	private Label rowCliffLabel;
 	private Label columnCliffLabel;
 
-	public OtherSettingsScreen(CuevaDelMonstruo cuevaDelMonstruo) {
+	public SettingsSecondScreen(CuevaDelMonstruo cuevaDelMonstruo) {
 		this.parent = cuevaDelMonstruo;
 		stage = new Stage(new ScreenViewport());
 	}
