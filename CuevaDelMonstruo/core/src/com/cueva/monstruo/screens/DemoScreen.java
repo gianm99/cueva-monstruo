@@ -52,7 +52,7 @@ public class DemoScreen implements Screen {
 				if (cuadro.isMonstruo()) game.batch.draw(monstruo, x, y);
 				//tesoro
 				if (cuadro.isTesoro()) {
-					game.batch.draw(cuadro.isTesoroEncontrado() ? tesoroAbierto : tesoroCerrado, x, y);
+					game.batch.draw(cueva.isTesoroEncontrado() ? tesoroAbierto : tesoroCerrado, x, y);
 				}
 				//agente
 				if (cuadro.isAgente()) game.batch.draw(agente, x, y);

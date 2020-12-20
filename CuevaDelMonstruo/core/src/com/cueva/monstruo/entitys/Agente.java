@@ -270,7 +270,7 @@ public class Agente {
 	public void mover() {
 		orientacion = movimiento;
 		System.out.println("Me muevo hacia el " + movimiento);
-		posAnterior=posActual;
+		posAnterior = posActual;
 		posActual = posActual.adyacente(movimiento);
 		System.out.println("Ahora estoy en " + posActual);
 		if (tesoro && posActual.esInicial()) {
@@ -415,5 +415,9 @@ public class Agente {
 
 	public Posicion getPosAnterior() {
 		return posAnterior;
+	}
+
+	public boolean isTesoro() {
+		return tesoro;
 	}
 }

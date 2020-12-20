@@ -17,13 +17,12 @@ import java.awt.geom.Rectangle2D;
  */
 public class Cuadro {
 
-	private boolean tesoro;                	//hay un tesoro
-	private boolean tesoroEncontrado;    	//el tesoro ha sido encontrado
-	private boolean monstruo;            	//hay un monstruo
-	private boolean hedor;                	//hay hedor
-	private boolean precipicio;            	//hay un precipicio
-	private boolean brisa;                	//hay brisa
-	private boolean agente;                	//el agente está en el cuadro
+	private boolean tesoro;                    //hay un tesoro
+	private boolean monstruo;                //hay un monstruo
+	private boolean hedor;                    //hay hedor
+	private boolean precipicio;                //hay un precipicio
+	private boolean brisa;                    //hay brisa
+	private boolean agente;                    //el agente está en el cuadro
 
 	public boolean isTesoro() {
 		return tesoro;
@@ -71,9 +70,5 @@ public class Cuadro {
 
 	public void setAgente(boolean agente) {
 		this.agente = agente;
-	}
-
-	public boolean isTesoroEncontrado() {
-		return tesoroEncontrado;
 	}
 }
