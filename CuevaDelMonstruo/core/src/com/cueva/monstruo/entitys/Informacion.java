@@ -12,15 +12,22 @@ package com.cueva.monstruo.entitys;
  */
 public class Informacion {
 
+	private boolean visitado;
 	private boolean hedor;
 	private boolean brisa;
 	private Monstruo monstruo;
 	private Precipicio precipicio;
-	private boolean visitado;
+
+	public Informacion() {
+		visitado = false;
+		hedor = false;
+		brisa = false;
+		monstruo = Monstruo.POSIBLE;
+		precipicio = Precipicio.POSIBLE;
+	}
 
 	/**
-	 * Determina si la información que se tiene sobre una posición indica que es segura para ser
-	 * visitada
+	 * Determina si la información que se tiene sobre una posición indica que es segura para ser visitada
 	 *
 	 * @return boolean indicando si es segura
 	 */
@@ -69,8 +76,7 @@ public class Informacion {
 	}
 
 	/**
-	 * Distintos tipos de información que se puede tener sobre la existencia de un monstruo en una
-	 * posición
+	 * Distintos tipos de información que se puede tener sobre la existencia de un monstruo en una posición
 	 */
 	public enum Monstruo {
 		POSIBLE,
@@ -79,8 +85,7 @@ public class Informacion {
 	}
 
 	/**
-	 * Distintos tipos de información que se puede tener sobre la existencia de un monstruo en una
-	 * posición
+	 * Distintos tipos de información que se puede tener sobre la existencia de un monstruo en una posición
 	 */
 	public enum Precipicio {
 		POSIBLE,

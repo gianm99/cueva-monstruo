@@ -13,7 +13,7 @@ package com.cueva.monstruo.entitys;
 public class Cueva {
 
 	private boolean tesoroEncontrado;
-	private Agente agente;
+	public Agente agente;
 	private final int size;
 	private int monstruos;
 	private Posicion tesoro;
@@ -80,9 +80,10 @@ public class Cueva {
 	private void retirarMonstruo(Posicion p) {
 		// Quitar el monstruo
 		cuadroPos(p).setMonstruo(false);
+		monstruos--;
 		// Quitar el hedor
-		// Anterior posición del monstruo
 		if (noHayMonstruoCerca(p)) {
+			// Anterior posición del monstruo
 			cuadroPos(p).setHedor(false);
 		}
 		// Posiciones adyacentes
@@ -124,7 +125,7 @@ public class Cueva {
 	 * Agrega un agente a la cueva. Siempre lo sitúa en la posición inicial.
 	 */
 	public void agregarAgente() {
-		agente = new Agente(new Posicion(1, 1), Orientacion.ESTE, monstruos);
+		agente = new Agente(new Posicion(1, 1), Orientacion.ESTE);
 		cuadros[0][0].setAgente(true);
 	}
 
@@ -307,5 +308,9 @@ public class Cueva {
 
 	public boolean isTesoroEncontrado() {
 		return tesoroEncontrado;
+	}
+
+	public int getMonstruos() {
+		return monstruos;
 	}
 }
