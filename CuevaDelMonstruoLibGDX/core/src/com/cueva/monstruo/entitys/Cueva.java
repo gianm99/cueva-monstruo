@@ -65,7 +65,7 @@ public class Cueva {
 	 * Hacer que el agente realice las acciones que considere correctas
 	 */
 	public void realizarAcciones() {
-		agente.elegirAccion();
+		agente.elegirMovimiento();
 		if (agente.isEliminarMonstruo()) {
 			Posicion posicionMonstruo = agente.getPosicionMonstruo();
 			retirarMonstruo(posicionMonstruo);

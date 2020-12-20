@@ -168,8 +168,8 @@ public class Agente {
 	 * de partida. Se elige una posición aleatoria de las adyacentes, dando prioridad a las no
 	 * visitadas.
 	 */
-	public void elegirAccion() {
-		//TODO Hacer algo más óptimo
+	public void elegirMovimiento() {
+		//TODO Hacer algo más óptimo para volver a la casilla de salida
 		if (tesoro) {
 			movimiento = posicion.direccion(historial.pop());
 			return;
@@ -179,6 +179,8 @@ public class Agente {
 			System.out.println("Se ha eliminado el monstruo de la posición " + posicionMonstruo);
 			eliminarMonstruo = true;
 			flechas--;
+		}else {
+			eliminarMonstruo=false;
 		}
 		List<Orientacion> visitadas = new ArrayList<>();
 		List<Orientacion> nuevas = new ArrayList<>();
