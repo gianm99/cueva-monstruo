@@ -14,7 +14,6 @@ public class Informacion {
 
 	private boolean hedor;
 	private boolean brisa;
-	private boolean resplandor;
 	private Monstruo monstruo;
 	private Precipicio precipicio;
 	private boolean visitado;
@@ -25,32 +24,24 @@ public class Informacion {
 	 *
 	 * @return boolean indicando si es segura
 	 */
-	public boolean segura() {
+	public boolean esSegura() {
 		return monstruo == Monstruo.NO && precipicio == Precipicio.NO;
 	}
 
-	public boolean isHedor() {
-		return hedor;
+	public boolean noHayHedor() {
+		return !hedor;
 	}
 
 	public void setHedor(boolean hedor) {
 		this.hedor = hedor;
 	}
 
-	public boolean isBrisa() {
-		return brisa;
+	public boolean noHayBrisa() {
+		return !brisa;
 	}
 
 	public void setBrisa(boolean brisa) {
 		this.brisa = brisa;
-	}
-
-	public boolean isResplandor() {
-		return resplandor;
-	}
-
-	public void setResplandor(boolean resplandor) {
-		this.resplandor = resplandor;
 	}
 
 	public Monstruo getMonstruo() {
@@ -77,17 +68,14 @@ public class Informacion {
 		this.visitado = visitado;
 	}
 
-	//================================================================================
-	// Enums
-	//================================================================================
 	/**
 	 * Distintos tipos de información que se puede tener sobre la existencia de un monstruo en una
 	 * posición
 	 */
 	public enum Monstruo {
-		NO, // No hay un monstruo
-		POSIBLE, // Es posible que haya un monstruo
-		SI			// Hay un monstruo
+		POSIBLE,
+		NO,
+		SI
 	}
 
 	/**
@@ -95,9 +83,9 @@ public class Informacion {
 	 * posición
 	 */
 	public enum Precipicio {
-		NO, // No hay un precipicio
-		POSIBLE, // Es posible que haya un precipicio
-		SI			// Hay un precipicio
+		POSIBLE,
+		NO,
+		SI
 	}
 
 }

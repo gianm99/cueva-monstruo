@@ -68,8 +68,8 @@ public class DemoScreen implements Screen {
 		}
 		if (!cueva.haTerminado() && TimeUtils.nanoTime() - lastMoveTime > 500000000
 				&& (autoPlay || Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
-			cueva.obtenerPercepciones();
-			cueva.realizarAcciones();
+			cueva.enviarPercepciones();
+			cueva.registrarAcciones();
 			lastMoveTime = TimeUtils.nanoTime();
 		}
 	}

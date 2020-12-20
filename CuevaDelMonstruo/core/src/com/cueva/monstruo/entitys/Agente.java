@@ -7,11 +7,8 @@ package com.cueva.monstruo.entitys;
 
 import com.cueva.monstruo.entitys.Informacion.Monstruo;
 import com.cueva.monstruo.entitys.Informacion.Precipicio;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-import java.util.Random;
+
+import java.util.*;
 
 /**
  * Un agente que razona para encontrar el tesoro en la cueva del monstruo
@@ -20,51 +17,54 @@ import java.util.Random;
  */
 public class Agente {
 
-	private boolean tesoro;						// Tesoro encontrado
-	private boolean terminado;					// Ha regresado al punto de partida con el tesoro
-	private boolean eliminarMonstruo;			// En este ciclo se elimina un monstruo
-	private int flechas;						// Flechas disponibles
-	private Posicion posicion;					// Posición en la que está
-	private Posicion posicionMonstruo;			// Posición del último monstruo eliminado o null
-	private Orientacion orientacion;			// Hacia donde apunta
-	private Orientacion movimiento;				// Dirección a la que se va a mover
-	private Deque<Posicion> historial;			// Historial de movimientos hasta el tesoro
-	private BaseConocimiento baseConocimiento;	// Base de conocimiento
+	private boolean tesoro; //tesoro encontrado
+	private boolean terminado; //tesoro encontrado y en posición inicial
+	private boolean dimensionConocida; //conoce la dimensión de la cueva
+	private int dimension; //dimensión de la cueva (si es conocida)
+	private int flechas; //flechas restantes
+	private Posicion posActual; //posición actual
+	private Posicion posAnterior; //posición anterior
+	private Orientacion orientacion; //dirección en la que mira
+	private Orientacion movimiento; //movimiento a realizar
+	private final Deque<Posicion> historial; //historial de movimientos
+	private final HashMap<Posicion, Informacion> bc; //base de conocimiento
 
 	public Agente(Posicion posicion, Orientacion orientacion, int monstruos) {
+		this.posActual = posicion;
+		this.posAnterior = posicion;
 		this.orientacion = orientacion;
-		this.posicion = posicion;
-		baseConocimiento = new BaseConocimiento();
-		historial = new ArrayDeque<>();
-		flechas = monstruos;
+		this.flechas = monstruos;
+		this.historial = new ArrayDeque<>();
+		this.bc = new HashMap<>();
 	}
 
 	/**
-	 * Actualizar la posición que ha visitado el agente y las adyacentes. Se infiere conocimiento
-	 * basándose en lo que ya hay en la base de conocimiento y las reglas lógicas que definen la
-	 * conducta del agente y el comportamiento del entorno.
+	 * Actualizar la posición que ha visitado el agente y las adyacentes. Se infiere conocimiento basándose en lo que ya
+	 * hay en la base de conocimiento y las reglas lógicas que definen la conducta del agente y el comportamiento del
+	 * entorno.
 	 *
-	 * @param hedor
-	 * @param brisa
-	 * @param resplandor
-	 * @param golpe
+	 * @param hedor      ha detectado hedor
+	 * @param brisa      ha notado una brisa
+	 * @param resplandor ha visto un resplandor
+	 * @param golpe      ha notado un golpe
 	 */
 	public void actualizar(boolean hedor, boolean brisa, boolean resplandor, boolean golpe) {
-		eliminarMonstruo = false;
 		if (resplandor) {
 			tesoro = true;
 			return;
 		}
 		if (!tesoro) {
-			historial.push(posicion);
+			historial.push(posActual);
 		}
 		if (golpe) {
 			switch (orientacion) {
 				case NORTE:
-					baseConocimiento.registrarFilas(posicion.getFila());
+					dimensionConocida = true;
+					dimension = posActual.getFila();
 					break;
 				case ESTE:
-					baseConocimiento.registrarColumnas(posicion.getColumna());
+					dimensionConocida = true;
+					dimension = posActual.getColumna();
 					break;
 				default:
 			}
@@ -76,51 +76,49 @@ public class Agente {
 		infoActual.setVisitado(true);
 		infoActual.setHedor(hedor);
 		infoActual.setBrisa(brisa);
-		infoActual.setResplandor(resplandor);
-		baseConocimiento.registrar(posicion, infoActual);
+		registrar(posActual, infoActual);
 		// Se actualizan las posiciones adyacentes
-		actualizarAdyacentes(posicion, hedor, brisa);
+		actualizarAdyacentes(posActual, hedor, brisa);
 		// Se actualizan el resto de posiciones descubiertas
-		baseConocimiento.actualizarTodo();
+		actualizarResto();
 	}
 
 	/**
-	 * Actualizar la información sobre las posiciones adyacentes a la que se ha visitado en base a
-	 * las percepciones obtenidas. Se infiere conocimiento basándose en lo que ya hay en la base de
-	 * conocimiento y las reglas lógicas que definen la conducta del agente y el comportamiento del
-	 * entorno.
+	 * Actualizar la información sobre las posiciones adyacentes a la que se ha visitado en base a las percepciones
+	 * obtenidas. Se infiere conocimiento basándose en lo que ya hay en la base de conocimiento y las reglas lógicas que
+	 * definen la conducta del agente y el comportamiento del entorno.
 	 *
 	 * @param central posición que se ha visitado
-	 * @param hedor boolean que indica si se ha sentido un hedor
-	 * @param brisa boolean que indica si se ha sentido una brisa
+	 * @param hedor   boolean que indica si se ha sentido un hedor
+	 * @param brisa   boolean que indica si se ha sentido una brisa
 	 */
 	private void actualizarAdyacentes(Posicion central, boolean hedor, boolean brisa) {
-		Posicion posicionAd; // Posición adyacente
-		Informacion informacionAd; // Información de la posición adyacente
+		Posicion posAdyacente; // Posición adyacente
+		Informacion infoAdyacente; // Información de la posición adyacente
 		for (Orientacion o1 : Orientacion.values()) {
-			posicionAd = central.adyacente(o1);
+			posAdyacente = central.adyacente(o1);
 			// Si la posición no es posible, se ignora
-			if (!baseConocimiento.posicionPosible(posicionAd)) {
+			if (!posPosible(posAdyacente)) {
 				continue;
 			}
 			// Si la información es nueva, se guarda
-			if (!baseConocimiento.existeRegistro(posicionAd)) {
-				informacionAd = new Informacion();
-				informacionAd.setMonstruo(hedor ? Monstruo.POSIBLE : Monstruo.NO);
-				informacionAd.setPrecipicio(brisa ? Precipicio.POSIBLE : Precipicio.NO);
-				baseConocimiento.registrar(posicionAd, informacionAd);
+			if (!existeRegistro(posAdyacente)) {
+				infoAdyacente = new Informacion();
+				infoAdyacente.setMonstruo(hedor ? Monstruo.POSIBLE : Monstruo.NO);
+				infoAdyacente.setPrecipicio(brisa ? Precipicio.POSIBLE : Precipicio.NO);
+				registrar(posAdyacente, infoAdyacente);
 				continue;
 			}
-			informacionAd = baseConocimiento.consultar(posicionAd);
+			infoAdyacente = consultar(posAdyacente);
 			// Si antes no había monstruo ni precipicio, se deja igual
-			if (informacionAd.getMonstruo() == Monstruo.NO
-					&& informacionAd.getPrecipicio() == Precipicio.NO) {
+			if (infoAdyacente.getMonstruo() == Monstruo.NO
+					&& infoAdyacente.getPrecipicio() == Precipicio.NO) {
 				continue;
 			}
 			// Si no hay hedor ni brisa, no hay monstruo ni precipicio
 			if (!hedor && !brisa) {
-				informacionAd.setMonstruo(Monstruo.NO);
-				informacionAd.setPrecipicio(Precipicio.NO);
+				infoAdyacente.setMonstruo(Monstruo.NO);
+				infoAdyacente.setPrecipicio(Precipicio.NO);
 				continue;
 			}
 			// Se comprueba si se puede confirmar que hay monstruo o precipicio
@@ -128,10 +126,10 @@ public class Agente {
 			boolean precipicioConfirmado = true;
 			for (Orientacion o2 : Orientacion.values()) {
 				if (o1 != o2) {
-					if (baseConocimiento.posibleMonstruo(central.adyacente(o2))) {
+					if (posibleMonstruo(central.adyacente(o2))) {
 						monstruoConfirmado = false;
 					}
-					if (baseConocimiento.posiblePrecipicio(central.adyacente(o2))) {
+					if (posiblePrecipicio(central.adyacente(o2))) {
 						precipicioConfirmado = false;
 					}
 					if (!monstruoConfirmado && !precipicioConfirmado) {
@@ -140,55 +138,119 @@ public class Agente {
 				}
 			}
 			// Solo se comprueba si es posible o se había confirmado
-			if (informacionAd.getMonstruo() == Monstruo.POSIBLE) {
+			if (infoAdyacente.getMonstruo() == Monstruo.POSIBLE) {
 				if (!hedor) {
-					informacionAd.setMonstruo(Monstruo.NO);
+					infoAdyacente.setMonstruo(Monstruo.NO);
 				} else if (monstruoConfirmado) {
-					informacionAd.setMonstruo(Monstruo.SI);
+					infoAdyacente.setMonstruo(Monstruo.SI);
 				} else {
-					informacionAd.setMonstruo(Monstruo.POSIBLE);
+					infoAdyacente.setMonstruo(Monstruo.POSIBLE);
 				}
 			}
 			// Solo se comprueba cuando es posible
-			if (informacionAd.getPrecipicio() == Precipicio.POSIBLE) {
+			if (infoAdyacente.getPrecipicio() == Precipicio.POSIBLE) {
 				if (!brisa) {
-					informacionAd.setPrecipicio(Precipicio.NO);
+					infoAdyacente.setPrecipicio(Precipicio.NO);
 				} else if (precipicioConfirmado) {
-					informacionAd.setPrecipicio(Precipicio.SI);
+					infoAdyacente.setPrecipicio(Precipicio.SI);
 				} else {
-					informacionAd.setPrecipicio(Precipicio.POSIBLE);
+					infoAdyacente.setPrecipicio(Precipicio.POSIBLE);
 				}
 			}
 		}
 	}
 
 	/**
-	 * Determina la acción a realizar por el agente en base al conocimiento que tiene sobre el
-	 * entorno. Si ya ha encontrado el tesoro, lo que hace es recorrer el camino de vuelta al punto
-	 * de partida. Se elige una posición aleatoria de las adyacentes, dando prioridad a las no
-	 * visitadas.
+	 * Actualiza toda la información que ya existe en la BC para intentar inferir nuevo conocimiento
+	 */
+	public void actualizarResto() {
+		for (HashMap.Entry<Posicion, Informacion> entry : bc.entrySet()) {
+			Posicion posicion = entry.getKey();
+			Informacion informacion = entry.getValue();
+			// Si no se ha visitado, se ignora
+			if (!informacion.isVisitado()) {
+				continue;
+			}
+			// Si no hay hedor ni brisa, se ignora
+			if (informacion.noHayHedor() && informacion.noHayBrisa()) {
+				continue;
+			}
+			Posicion posicionAd; // Posición adyacente
+			Informacion informacionAd; // Información de la posición adyacente
+			for (Orientacion o1 : Orientacion.values()) {
+				posicionAd = posicion.adyacente(o1);
+				// Si no existe registro, se ignora
+				if (!existeRegistro(posicionAd)) {
+					continue;
+				}
+				informacionAd = consultar(posicionAd);
+				// Si antes no había monstruo ni había un posible precipicio, se deja igual
+				if (informacionAd.getMonstruo() == Monstruo.NO
+						&& informacionAd.getPrecipicio() != Precipicio.POSIBLE) {
+					continue;
+				}
+				// Se comprueba si se puede confirmar que hay monstruo o precipicio
+				boolean monstruoConfirmado = true;
+				boolean precipicioConfirmado = true;
+				for (Orientacion o2 : Orientacion.values()) {
+					if (o1 != o2) {
+						if (posibleMonstruo(posicion.adyacente(o2))) {
+							monstruoConfirmado = false;
+						}
+						if (posiblePrecipicio(posicion.adyacente(o2))) {
+							precipicioConfirmado = false;
+						}
+						if (!monstruoConfirmado && !precipicioConfirmado) {
+							break;
+						}
+					}
+				}
+				// Se elimina el hedor si no hay origen posible
+				if (monstruoConfirmado && informacionAd.getMonstruo() == Monstruo.NO) {
+					informacion.setHedor(false);
+				}
+				// Solo se comprueba si había un monstruo o es posible
+				if (informacionAd.getMonstruo() == Monstruo.POSIBLE) {
+					if (informacion.noHayHedor()) {
+						informacionAd.setMonstruo(Monstruo.NO);
+					} else if (monstruoConfirmado) {
+						informacionAd.setMonstruo(Monstruo.SI);
+					} else {
+						informacionAd.setMonstruo(Monstruo.POSIBLE);
+					}
+				}
+				// Solo se comprueba si hay un posible precipicio
+				if (informacionAd.getPrecipicio() == Precipicio.POSIBLE) {
+					if (informacion.noHayBrisa()) {
+						informacionAd.setPrecipicio(Precipicio.NO);
+					} else if (precipicioConfirmado) {
+						informacionAd.setPrecipicio(Precipicio.SI);
+					} else {
+						informacionAd.setPrecipicio(Precipicio.POSIBLE);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Determina la acción a realizar por el agente en base al conocimiento que tiene sobre el entorno. Si ya ha
+	 * encontrado el tesoro, lo que hace es recorrer el camino de vuelta al punto de partida. Se elige una posición
+	 * aleatoria de las adyacentes, dando prioridad a las no visitadas.
 	 */
 	public void elegirMovimiento() {
 		//TODO Hacer algo más óptimo para volver a la casilla de salida
 		if (tesoro) {
-			movimiento = posicion.direccion(historial.pop());
+			movimiento = posActual.direccion(historial.pop());
 			return;
-		}
-		posicionMonstruo = baseConocimiento.monstruoVisible(posicion);
-		if (posicionMonstruo != null && flechas > 0) {
-			System.out.println("Se ha eliminado el monstruo de la posición " + posicionMonstruo);
-			eliminarMonstruo = true;
-			flechas--;
-		}else {
-			eliminarMonstruo=false;
 		}
 		List<Orientacion> visitadas = new ArrayList<>();
 		List<Orientacion> nuevas = new ArrayList<>();
 		for (Orientacion o : Orientacion.values()) {
-			if (!posicionSegura(posicion.adyacente(o))) {
+			if (!posSegura(posActual.adyacente(o))) {
 				continue;
 			}
-			if (baseConocimiento.consultar(posicion.adyacente(o)).isVisitado()) {
+			if (consultar(posActual.adyacente(o)).isVisitado()) {
 				visitadas.add(o);
 			} else {
 				nuevas.add(o);
@@ -203,102 +265,155 @@ public class Agente {
 	}
 
 	/**
-	 * Se mueve hacia una nueva posición y actualiza los datos sobre la posición actual y la
-	 * orientación
+	 * Se mueve hacia una nueva posición y actualiza los datos sobre la posición actual y la orientación
 	 */
-	public void actuar() {
-		orientacion = movimiento; // Se gira
+	public void mover() {
+		orientacion = movimiento;
 		System.out.println("Me muevo hacia el " + movimiento);
-		posicion = posicion.adyacente(movimiento); // Se mueve
-		System.out.println("Ahora estoy en " + posicion);
-		if (tesoro && posicion.esPuntoPartida()) {
-			// Si tiene el tesoro y está en el punto de partida, ha terminado
+		posAnterior=posActual;
+		posActual = posActual.adyacente(movimiento);
+		System.out.println("Ahora estoy en " + posActual);
+		if (tesoro && posActual.esInicial()) {
 			terminado = true;
 		}
 	}
 
 	/**
-	 * Determina si una posición de la cueva (combinación de fila y columna) es segura para visitar
-	 * dado el conocimiento obtenido
+	 * Determina si puede atacar a algún monstruo. La decisión tiene en cuenta si hay un monstruo a la vista y si quedan
+	 * suficientes flechas.
 	 *
-	 * @param p posición que se quiere comprobar
-	 * @return boolean indicando si es segura
+	 * @return se puede atacar a algún monstruo
 	 */
-	public boolean posicionSegura(Posicion p) {
-		return baseConocimiento.existeRegistro(p) && baseConocimiento.consultar(p).segura();
+	public boolean puedoAtacar() {
+		return hayMonstruoVisible() && flechas > 0;
 	}
 
-	public Posicion getPosicion() {
-		return posicion;
+	/**
+	 * Ataca a un monstruo y devuelve la posición en la que estaba
+	 *
+	 * @return posición en la que estaba el monstruo
+	 */
+	public Posicion atacar() {
+		Posicion posMonstruo = monstruoVisible();
+		Informacion infoMonstruo = consultar(posMonstruo);
+		flechas--;
+		infoMonstruo.setMonstruo(Monstruo.NO);
+		System.out.println("(Agente) He eliminado al monstruo de la posición " + posMonstruo);
+		return posMonstruo;
 	}
 
-	public void setPosicion(Posicion posicion) {
-		this.posicion = posicion;
+	public Posicion getPosActual() {
+		return posActual;
 	}
 
 	public Orientacion getOrientacion() {
 		return orientacion;
 	}
 
-	public void setOrientacion(Orientacion orientacion) {
-		this.orientacion = orientacion;
-	}
-
-	public boolean isTesoro() {
-		return tesoro;
-	}
-
-	public void setTesoro(boolean tesoro) {
-		this.tesoro = tesoro;
-	}
-
 	public boolean isTerminado() {
 		return terminado;
 	}
 
-	public void setTerminado(boolean terminado) {
-		this.terminado = terminado;
-	}
-
-	public boolean isEliminarMonstruo() {
-		return eliminarMonstruo;
-	}
-
-	public void setEliminarMonstruo(boolean eliminarMonstruo) {
-		this.eliminarMonstruo = eliminarMonstruo;
-	}
-
-	public Posicion getPosicionMonstruo() {
-		return posicionMonstruo;
-	}
-
-	public void setPosicionMonstruo(Posicion posicionMonstruo) {
-		this.posicionMonstruo = posicionMonstruo;
+	/**
+	 * Devolver la información asociada a una posición
+	 *
+	 * @param p posición que se quiere consultar
+	 * @return percepción asociada a la posición que se consulta
+	 */
+	public Informacion consultar(Posicion p) {
+		return bc.get(p);
 	}
 
 	/**
-	 * Orientación que puede tener un agente
+	 * Registra la información que se ha percibido o inferido sobre una posición
+	 *
+	 * @param p posición que se quiere registrar
+	 * @param i percepción que se quiere registrar
 	 */
-	public enum Orientacion {
-		ESTE, NORTE, OESTE, SUR;
-		private static final Orientacion[] vals = values();
+	public void registrar(Posicion p, Informacion i) {
+		bc.put(p, i);
+	}
 
-		/**
-		 * Girar una posición hacia adelante en el sentido horario
-		 *
-		 * @return la siguiente posición en sentido horario
-		 */
-		public Orientacion derecha() {
-			return vals[Math.floorMod((this.ordinal() + 1), vals.length)];
-		}
+	/**
+	 * Comprueba si existe un registro con información asociada a una posición en concreto
+	 *
+	 * @param p posición que se quiere comprobar
+	 * @return boolean que indica si hay o no un registro
+	 */
+	public boolean existeRegistro(Posicion p) {
+		return p.esPosible() && bc.containsKey(p);
+	}
 
-		/**
-		 * Girar una posición hacia atrás en el sentido horario
-		 *
-		 * @return la anterior posición en sentido horario
-		 */
-		public Orientacion izquierda() {
-			return vals[Math.floorMod((this.ordinal() - 1), vals.length)];
+	private boolean hayMonstruoVisible() {
+		for (HashMap.Entry<Posicion, Informacion> entry : bc.entrySet()) {
+			Posicion posicion = entry.getKey();
+			Informacion informacion = entry.getValue();
+			if (informacion.getMonstruo() == Monstruo.SI
+					&& (posicion.getFila() == this.posActual.getFila()
+					|| posicion.getColumna() == this.posActual.getColumna())) {
+				return true;
+			}
 		}
+		return false;
+	}
+
+	private Posicion monstruoVisible() {
+		for (HashMap.Entry<Posicion, Informacion> entry : bc.entrySet()) {
+			Posicion posicion = entry.getKey();
+			Informacion informacion = entry.getValue();
+			if (informacion.getMonstruo() == Monstruo.SI
+					&& (posicion.getFila() == this.posActual.getFila()
+					|| posicion.getColumna() == this.posActual.getColumna())) {
+				return posicion;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Determina si una posición de la cueva (combinación de fila y columna) es segura para visitar dado el conocimiento
+	 * obtenido
+	 *
+	 * @param p posición que se quiere comprobar
+	 * @return boolean indicando si es segura
+	 */
+	private boolean posSegura(Posicion p) {
+		return existeRegistro(p) && consultar(p).esSegura();
+	}
+
+	/**
+	 * Determina si una posición de la cueva es posible dado el conocimiento actual
+	 *
+	 * @param p posición que se quiere comprobar
+	 * @return boolean indicando si es posible
+	 */
+	private boolean posPosible(Posicion p) {
+		return p.esPosible() && (!dimensionConocida || (p.getFila() <= dimension && p.getColumna() <= dimension));
+	}
+
+	/**
+	 * Determina si es posible que en una posición haya un monstruo dado el conocimiento actual
+	 *
+	 * @param p posición que se comprueba
+	 * @return boolean indicando si es posible
+	 */
+	private boolean posibleMonstruo(Posicion p) {
+		return posPosible(p) && existeRegistro(p)
+				&& consultar(p).getMonstruo() != Monstruo.NO;
+	}
+
+	/**
+	 * Determina si es posible que en una posición haya un precipicio dado el conocimiento actual
+	 *
+	 * @param p posición que se comprueba
+	 * @return boolean indicando si es posible
+	 */
+	private boolean posiblePrecipicio(Posicion p) {
+		return posPosible(p) && existeRegistro(p)
+				&& consultar(p).getPrecipicio() != Precipicio.NO;
+	}
+
+	public Posicion getPosAnterior() {
+		return posAnterior;
 	}
 }

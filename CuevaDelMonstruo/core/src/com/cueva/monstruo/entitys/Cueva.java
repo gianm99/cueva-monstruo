@@ -5,8 +5,6 @@
  */
 package com.cueva.monstruo.entitys;
 
-import com.cueva.monstruo.entitys.Agente.Orientacion;
-
 /**
  * Una cueva con unas características determinadas
  *
@@ -15,22 +13,19 @@ import com.cueva.monstruo.entitys.Agente.Orientacion;
 public class Cueva {
 
 	private Agente agente;
-	private int size;
+	private final int size;
 	private int monstruos;
 	private Posicion tesoro;
 	public Cuadro[][] cuadros;
 	public final int costado;
-	public static final int COLUMNAS_MAX = 20;
-	public static final int FILAS_MAX = 20;
+	public static final int DIMENSION_MAX = 20;
 	public static final int DEFAULT_SIZE = 3;
 
 	public Cueva(int size) {
 		this.size = size;
 		costado = 480 / size;
 		cuadros = new Cuadro[size][size];
-		int y = 0;
 		for (int i = 0; i < size; i++) {
-			int x = 0;
 			for (int j = 0; j < size; j++) {
 				cuadros[i][j] = new Cuadro();
 			}
@@ -38,13 +33,11 @@ public class Cueva {
 		agregarAgente();
 	}
 
-	public void obtenerPercepciones() {
-		Posicion posicion = agente.getPosicion();
-		int fila = posicion.getFila() - 1;
-		int columna = posicion.getColumna() - 1;
-		boolean hedor = cuadros[fila][columna].isHedor();
-		boolean brisa = cuadros[fila][columna].isBrisa();
-		boolean resplandor = cuadros[fila][columna].isTesoro();
+	public void enviarPercepciones() {
+		Cuadro cuadroAgente = cuadroPos(agente.getPosActual());
+		boolean hedor = cuadroAgente.isHedor();
+		boolean brisa = cuadroAgente.isBrisa();
+		boolean resplandor = cuadroAgente.isTesoro();
 		boolean golpe = calcularGolpe();
 		agente.actualizar(hedor, brisa, resplandor, golpe);
 	}
@@ -55,26 +48,26 @@ public class Cueva {
 	 * @return boolean indicando si debe percibir un golpe
 	 */
 	private boolean calcularGolpe() {
-		Posicion posicion = agente.getPosicion();
+		Posicion posicion = agente.getPosActual();
 		Orientacion orientacion = agente.getOrientacion();
 		return (posicion.getFila() == size && orientacion == Orientacion.NORTE)
 				|| (posicion.getColumna() == size && orientacion == Orientacion.ESTE);
 	}
 
 	/**
-	 * Hacer que el agente realice las acciones que considere correctas
+	 * Hacer que el agente realice las acciones que considere correctas. En una iteración puede moverse o atacar, pero
+	 * no las dos a la vez.
 	 */
-	public void realizarAcciones() {
-		agente.elegirMovimiento();
-		if (agente.isEliminarMonstruo()) {
-			Posicion posicionMonstruo = agente.getPosicionMonstruo();
-			retirarMonstruo(posicionMonstruo);
+	public void registrarAcciones() {
+		if (agente.puedoAtacar()) {
+			Posicion posMonstruo = agente.atacar();
+			retirarMonstruo(posMonstruo);
+		} else {
+			agente.elegirMovimiento();
+			agente.mover();
+			cuadroPos(agente.getPosAnterior()).setAgente(false);
+			cuadroPos(agente.getPosActual()).setAgente(true);
 		}
-		Cuadro anterior = cuadroEnPosicion(agente.getPosicion());
-		anterior.setAgente(false);
-		agente.actuar();
-		Cuadro nuevo = cuadroEnPosicion(agente.getPosicion());
-		nuevo.setAgente(true);
 	}
 
 	/**
@@ -84,16 +77,16 @@ public class Cueva {
 	 */
 	private void retirarMonstruo(Posicion p) {
 		// Quitar el monstruo
-		cuadroEnPosicion(p).setMonstruo(false);
+		cuadroPos(p).setMonstruo(false);
 		// Quitar el hedor
 		// Anterior posición del monstruo
-		if (!tieneMonstruoCerca(p)) {
-			cuadroEnPosicion(p).setHedor(false);
+		if (noHayMonstruoCerca(p)) {
+			cuadroPos(p).setHedor(false);
 		}
 		// Posiciones adyacentes
 		for (Orientacion o : Orientacion.values()) {
-			if (!tieneMonstruoCerca(p.adyacente(o))) {
-				cuadroEnPosicion(p.adyacente(o)).setHedor(false);
+			if (noHayMonstruoCerca(p.adyacente(o))) {
+				cuadroPos(p.adyacente(o)).setHedor(false);
 			}
 		}
 	}
@@ -104,15 +97,15 @@ public class Cueva {
 	 * @param p posición alrededor de la cual se comprueba
 	 * @return boolean indicando si hay un monstruo en una posición adyacente
 	 */
-	private boolean tieneMonstruoCerca(Posicion p) {
+	private boolean noHayMonstruoCerca(Posicion p) {
 		for (Orientacion o : Orientacion.values()) {
 			Posicion adyacente = p.adyacente(o);
 			if (posicionCorrecta(adyacente.getFila(), adyacente.getColumna())
-					&& cuadroEnPosicion(adyacente).isMonstruo()) {
-				return true;
+					&& cuadroPos(adyacente).isMonstruo()) {
+				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 
 	/**
@@ -121,7 +114,7 @@ public class Cueva {
 	 * @param p posición que se quiere comprobar
 	 * @return cuadro de la posición indicada
 	 */
-	private Cuadro cuadroEnPosicion(Posicion p) {
+	private Cuadro cuadroPos(Posicion p) {
 		return cuadros[p.getFila() - 1][p.getColumna() - 1];
 	}
 
@@ -148,7 +141,7 @@ public class Cueva {
 		}
 		//si había otro tesoro, se sustituye por el nuevo
 		if (tesoro != null) {
-			cuadroEnPosicion(tesoro).setTesoro(false);
+			cuadroPos(tesoro).setTesoro(false);
 		}
 		cuadros[fila - 1][columna - 1].setTesoro(true);
 		tesoro = new Posicion(fila, columna);
@@ -162,7 +155,7 @@ public class Cueva {
 	 * @param columna columna de la posición
 	 */
 	public void agregarMonstruo(int fila, int columna) {
-		if (!posicionCorrecta(fila, columna) || !respetaPosicionInicial(fila, columna)
+		if (!posicionCorrecta(fila, columna) || noRespetaPosicionInicial(fila, columna)
 				|| cuadros[fila - 1][columna - 1].isTesoro()) {
 			return;
 		}
@@ -216,7 +209,7 @@ public class Cueva {
 	 * @param columna columna de la posición
 	 */
 	public void agregarPrecipicio(int fila, int columna) {
-		if (!posicionCorrecta(fila, columna) || !respetaPosicionInicial(fila, columna)
+		if (!posicionCorrecta(fila, columna) || noRespetaPosicionInicial(fila, columna)
 				|| cuadros[fila - 1][columna - 1].isTesoro()) {
 			return;
 		}
@@ -263,32 +256,27 @@ public class Cueva {
 	}
 
 	/**
-	 * Determina si una combinación de fila y columna está alrededor de la posición inicial (1,1) de
-	 * la cueva
+	 * Determina si una combinación de fila y columna es la posición inicial (1,1) de la cueva o adyacente a ella
 	 *
-	 * @param fila
-	 * @param columna
-	 * @return
+	 * @param fila    fila que se comprueba
+	 * @param columna columna que se comprueba
+	 * @return no respeta la posición inicial
 	 */
-	private boolean respetaPosicionInicial(int fila, int columna) {
-		return (posicionCorrecta(fila, columna) && !(fila == 1 && columna == 1)
-				&& !adyacentes(1, 1, fila, columna));
+	private boolean noRespetaPosicionInicial(int fila, int columna) {
+		return (!posicionCorrecta(fila, columna) || (fila == 1 && columna == 1)
+				|| adyacenteInicial(fila, columna));
 	}
 
 	/**
-	 * Determina si dos posiciones son adyacentes
+	 * Determina si una posición es adyacente a la posición inicial (1,1)
 	 *
-	 * @param fila1    fila de la posición 1
-	 * @param columna1 columna de la posición 1
-	 * @param fila2    fila de la posición 2
-	 * @param columna2 columna de la posición 2
+	 * @param fila    fila de la posición
+	 * @param columna columna de la posición
 	 * @return boolean indicando si son adyacentes
 	 */
-	private static boolean adyacentes(int fila1, int columna1, int fila2, int columna2) {
-		return (fila1 == fila2 && columna1 == columna2 + 1) // ESTE
-				|| (fila1 == fila2 + 1 && columna1 == columna2) // NORTE
-				|| (fila1 == fila2 && columna1 == columna2 - 1) // OESTE
-				|| (fila1 == fila2 - 1 && columna1 == columna2); // SUR
+	private static boolean adyacenteInicial(int fila, int columna) {
+		return (fila - 1 == 1 && columna == 1) // NORTE
+				|| (fila == 1 && columna - 1 == 1); // ESTE
 	}
 
 	/**
@@ -305,7 +293,7 @@ public class Cueva {
 	 *
 	 * @param fila    fila de la posición que se comprueba
 	 * @param columna columna de la posición que se comprueba
-	 * @return
+	 * @return está dentro del rango de la cueva
 	 */
 	private boolean posicionCorrecta(int fila, int columna) {
 		return fila > 0 && fila <= size && columna > 0 && columna <= size;
