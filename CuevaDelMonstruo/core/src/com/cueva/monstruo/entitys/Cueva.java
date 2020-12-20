@@ -12,6 +12,7 @@ package com.cueva.monstruo.entitys;
  */
 public class Cueva {
 
+	private boolean tesoroEncontrado;
 	private Agente agente;
 	private final int size;
 	private int monstruos;
@@ -40,6 +41,7 @@ public class Cueva {
 		boolean resplandor = cuadroAgente.isTesoro();
 		boolean golpe = calcularGolpe();
 		agente.actualizar(hedor, brisa, resplandor, golpe);
+		tesoroEncontrado = agente.isTesoro();
 	}
 
 	/**
@@ -301,5 +303,9 @@ public class Cueva {
 
 	public int getSize() {
 		return size;
+	}
+
+	public boolean isTesoroEncontrado() {
+		return tesoroEncontrado;
 	}
 }
