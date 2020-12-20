@@ -74,9 +74,9 @@ public class Agente {
 		infoActual.setVisitado(true);
 		registrar(posActual, infoActual);
 		// Se actualizan las posiciones adyacentes
-		actualizarAdyacentes(posActual, hedor, brisa);
+		actualizarAdyacentes(posActual);
 		// Se actualizan el resto de posiciones descubiertas
-//		actualizarResto();
+		actualizarResto();
 	}
 
 	/**
@@ -85,13 +85,12 @@ public class Agente {
 	 * definen la conducta del agente y el comportamiento del entorno.
 	 *
 	 * @param central posición que se ha visitado
-	 * @param hedor   boolean que indica si se ha sentido un hedor
-	 * @param brisa   boolean que indica si se ha sentido una brisa
 	 */
-	private void actualizarAdyacentes(Posicion central, boolean hedor, boolean brisa) {
-		//TODO Quitar parámetros redundantes (hedor y brisa)
-		Posicion posAdyacente; // Posición adyacente
-		Informacion infoAdyacente; // Información de la posición adyacente
+	private void actualizarAdyacentes(Posicion central) {
+		Posicion posAdyacente;
+		Informacion infoAdyacente;
+		boolean hedor = consultar(central).isHedor();
+		boolean brisa = consultar(central).isBrisa();
 		for (Orientacion o1 : Orientacion.values()) {
 			posAdyacente = central.adyacente(o1);
 			// Si la posición no es posible, se ignora
@@ -156,14 +155,14 @@ public class Agente {
 		Iterator<Map.Entry<Posicion, Informacion>> it = bc.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<Posicion, Informacion> par = it.next();
-			Posicion posicion = (Posicion) par.getKey();
-			Informacion informacion = (Informacion) par.getValue();
+			Posicion posicion = par.getKey();
+			Informacion informacion = par.getValue();
 			// Si no se ha visitado, se ignora
 			if (!informacion.isVisitado()) {
 				continue;
 			}
-			boolean hedor=!informacion.noHayHedor();
-			boolean brisa=!informacion.noHayBrisa();
+			boolean hedor = informacion.isHedor();
+			boolean brisa = informacion.isBrisa();
 			// Si no hay hedor ni brisa, se ignora
 			if (!hedor && !brisa) {
 				continue;
@@ -350,8 +349,8 @@ public class Agente {
 		Iterator<Map.Entry<Posicion, Informacion>> it = bc.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<Posicion, Informacion> par = it.next();
-			Posicion posicion = (Posicion) par.getKey();
-			Informacion informacion = (Informacion) par.getValue();
+			Posicion posicion = par.getKey();
+			Informacion informacion = par.getValue();
 			if (informacion.getMonstruo() == Monstruo.SI
 					&& (posicion.getFila() == this.posActual.getFila()
 					|| posicion.getColumna() == this.posActual.getColumna())) {

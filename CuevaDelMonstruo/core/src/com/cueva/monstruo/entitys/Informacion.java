@@ -35,16 +35,16 @@ public class Informacion {
 		return monstruo == Monstruo.NO && precipicio == Precipicio.NO;
 	}
 
-	public boolean noHayHedor() {
-		return !hedor;
+	public boolean isHedor() {
+		return hedor;
 	}
 
 	public void setHedor(boolean hedor) {
 		this.hedor = hedor;
 	}
 
-	public boolean noHayBrisa() {
-		return !brisa;
+	public boolean isBrisa() {
+		return brisa;
 	}
 
 	public void setBrisa(boolean brisa) {
