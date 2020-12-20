@@ -5,8 +5,6 @@
  */
 package com.cueva.monstruo.entitys;
 
-import com.cueva.monstruo.entitys.Agente.Orientacion;
-
 /**
  * Una posición en la cueva del monstruo
  *
@@ -14,9 +12,9 @@ import com.cueva.monstruo.entitys.Agente.Orientacion;
  */
 public class Posicion {
 
-	private final int fila;		// Fila de la posición
-	private final int columna;	// Columna de la posición
-	private final int hash;		// Hash asociado a una posición
+	private final int fila;        // Fila de la posición
+	private final int columna;    // Columna de la posición
+	private final int hash;        // Hash asociado a una posición
 
 	public Posicion(int fila, int columna) {
 		this.fila = fila;
@@ -27,20 +25,21 @@ public class Posicion {
 	}
 
 	/**
-	 * Determina si una posición es correcta. Una posición es correcta si es una combinación de dos
-	 * números enteros mayores a cero y menores al número máximo posible de filas y columnas
+	 * Determina si una posición es correcta. Una posición es correcta si es una combinación de dos números enteros
+	 * mayores a cero y menores al número máximo posible de filas y columnas
 	 *
 	 * @return boolean indicando si la posición es correcta
 	 */
 	public boolean esPosible() {
-		return fila > 0 && fila <= Cueva.FILAS_MAX && columna > 0 && columna <= Cueva.COLUMNAS_MAX;
+		return fila > 0 && fila <= Cueva.DIMENSION_MAX && columna > 0 && columna <= Cueva.DIMENSION_MAX;
 	}
 
 	/**
 	 * Determina si la posición es el punto de partida del agente
+	 *
 	 * @return boolean indicando si es el punto de partida
 	 */
-	public boolean esPuntoPartida() {
+	public boolean esInicial() {
 		return fila == 1 && columna == 1;
 	}
 
@@ -65,8 +64,9 @@ public class Posicion {
 
 	/**
 	 * Devuelve la dirección en la que se encuentra una posición respecto a esta
+	 *
 	 * @param posicion
-	 * @return 
+	 * @return
 	 */
 	public Orientacion direccion(Posicion posicion) {
 		if (posicion.getFila() < fila) {
