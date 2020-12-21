@@ -256,25 +256,16 @@ public class Agente {
 				movimiento = pasos.pop();
 			}
 		} else {
-			//si no, elige un movimiento al azar
-			List<Orientacion> visitadas = new ArrayList<>();
-			List<Orientacion> nuevas = new ArrayList<>();
+			//si no, elige un movimiento al azar entre los seguros
+			List<Orientacion> seguras = new ArrayList<>();
 			for (Orientacion o : Orientacion.values()) {
 				if (!posSegura(posActual.adyacente(o))) {
 					continue;
 				}
-				if (consultar(bc, posActual.adyacente(o)).isVisitado()) {
-					visitadas.add(o);
-				} else {
-					nuevas.add(o);
-				}
+				seguras.add(o);
 			}
 			Random rand = new Random();
-			if (!nuevas.isEmpty()) {
-				movimiento = nuevas.get(rand.nextInt(nuevas.size()));
-			} else {
-				movimiento = visitadas.get(rand.nextInt(visitadas.size()));
-			}
+			movimiento = seguras.get(rand.nextInt(seguras.size()));
 		}
 	}
 
@@ -309,6 +300,17 @@ public class Agente {
 		return convertirAMovimientos(origen, caminoMinimo);
 	}
 
+	private HashMap<Posicion, Informacion> clonarBaseConocimiento(HashMap<Posicion, Informacion> bc) {
+		HashMap<Posicion, Informacion> copia = new HashMap<>();
+		//marcar todas las posiciones como no visitadas
+		for (Map.Entry<Posicion, Informacion> par : bc.entrySet()) {
+			Posicion posicion = par.getKey();
+			Informacion informacion = par.getValue();
+			copia.put(posicion, new Informacion(informacion));
+		}
+		return copia;
+	}
+
 	private void busquedaEnProfundidad(HashMap<Posicion, Informacion> conocimiento,
 									   Posicion origen, Posicion destino) {
 		if (consultar(conocimiento, origen).isVisitado()) return;
@@ -329,16 +331,6 @@ public class Agente {
 		consultar(conocimiento, origen).setVisitado(false);
 	}
 
-	public HashMap<Posicion, Informacion> clonarBaseConocimiento(HashMap<Posicion, Informacion> bc) {
-		HashMap<Posicion, Informacion> copia = new HashMap<>();
-		//marcar todas las posiciones como no visitadas
-		for (Map.Entry<Posicion, Informacion> par : bc.entrySet()) {
-			Posicion posicion = par.getKey();
-			Informacion informacion = par.getValue();
-			copia.put(posicion, new Informacion(informacion));
-		}
-		return copia;
-	}
 
 	/**
 	 * Convierte una lista de posiciones a movimientos
