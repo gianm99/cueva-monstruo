@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.cueva.monstruo.CuevaDelMonstruo;
 import com.cueva.monstruo.entitys.Cuadro;
@@ -56,6 +57,17 @@ public class DemoScreen implements Screen {
 				}
 				//agente
 				if (cuadro.isAgente()) game.batch.draw(agente, x, y);
+				//hedor y brisa
+				if (cuadro.isHedor() && cuadro.isBrisa()) {
+					//escribir HB
+					game.font.draw(game.batch, "HB", x, y + 10);
+				} else if (cuadro.isHedor()) {
+					//escribir H
+					game.font.draw(game.batch, "H", x, y + 10);
+				} else if (cuadro.isBrisa()) {
+					//escribir B
+					game.font.draw(game.batch, "B", x, y + 10);
+				}
 			}
 		}
 		game.batch.end();
