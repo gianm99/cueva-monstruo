@@ -77,6 +77,7 @@ public class DemoScreen implements Screen {
 	@Override
 	public void show() {
 		this.cueva = game.cueva; //recargar la cueva
+		this.cueva.agente.setFlechas(this.cueva.getMonstruos());
 		autoPlay = false;
 		//cargar las texturas
 		agente = escalarTextura(new Pixmap(Gdx.files.internal("agent.png")));
