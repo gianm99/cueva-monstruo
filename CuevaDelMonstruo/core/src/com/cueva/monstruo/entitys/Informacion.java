@@ -13,6 +13,7 @@ package com.cueva.monstruo.entitys;
 public class Informacion {
 
 	private boolean visitado;
+	private boolean considerado;
 	private boolean hedor;
 	private boolean brisa;
 	private Monstruo monstruo;
@@ -20,10 +21,20 @@ public class Informacion {
 
 	public Informacion() {
 		visitado = false;
+		considerado = false;
 		hedor = false;
 		brisa = false;
 		monstruo = Monstruo.POSIBLE;
 		precipicio = Precipicio.POSIBLE;
+	}
+
+	public Informacion(Informacion informacion) {
+		this.visitado = informacion.visitado;
+		this.hedor = informacion.hedor;
+		this.brisa = informacion.brisa;
+		this.monstruo = informacion.monstruo;
+		this.precipicio = informacion.precipicio;
+		this.considerado = informacion.considerado;
 	}
 
 	/**
@@ -73,6 +84,14 @@ public class Informacion {
 
 	public void setVisitado(boolean visitado) {
 		this.visitado = visitado;
+	}
+
+	public boolean isConsiderado() {
+		return considerado;
+	}
+
+	public void setConsiderado(boolean considerado) {
+		this.considerado = considerado;
 	}
 
 	/**

@@ -63,10 +63,22 @@ public class Posicion {
 	}
 
 	/**
+	 * Determina si una posición es adyacente a la actual
+	 * @param posicion posición que se comprueba
+	 * @return si es adyacente
+	 */
+	public boolean esAdyacente(Posicion posicion){
+		return posicion.equals(adyacente(Orientacion.ESTE))
+				|| posicion.equals(adyacente(Orientacion.NORTE))
+				|| posicion.equals(adyacente(Orientacion.OESTE))
+				|| posicion.equals(adyacente(Orientacion.SUR));
+	}
+
+	/**
 	 * Devuelve la dirección en la que se encuentra una posición respecto a esta
 	 *
-	 * @param posicion
-	 * @return
+	 * @param posicion posición adyacente a esta posición
+	 * @return dirección en la que está respecto a esta posición
 	 */
 	public Orientacion direccion(Posicion posicion) {
 		if (posicion.getFila() < fila) {
