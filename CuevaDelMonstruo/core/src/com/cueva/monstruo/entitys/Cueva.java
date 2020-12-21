@@ -89,7 +89,10 @@ public class Cueva {
 		// Posiciones adyacentes
 		for (Orientacion o : Orientacion.values()) {
 			if (noHayMonstruoCerca(p.adyacente(o))) {
-				cuadroPos(p.adyacente(o)).setHedor(false);
+				Posicion posAdyacente = p.adyacente(o);
+				if (posicionCorrecta(posAdyacente.getFila(), posAdyacente.getColumna())) {
+					cuadroPos(p.adyacente(o)).setHedor(false);
+				}
 			}
 		}
 	}
