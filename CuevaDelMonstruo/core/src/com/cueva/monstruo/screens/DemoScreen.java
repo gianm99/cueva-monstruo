@@ -78,8 +78,9 @@ public class DemoScreen implements Screen {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 			autoPlay = !autoPlay;
 		}
-		if (!cueva.haTerminado() && TimeUtils.nanoTime() - lastMoveTime > 500000000
-				&& (autoPlay || Gdx.input.isKeyPressed(Input.Keys.RIGHT))) {
+		if (!cueva.haTerminado() &&
+				((autoPlay && TimeUtils.nanoTime() - lastMoveTime > 500000000)
+				|| (!autoPlay && Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)))) {
 			cueva.enviarPercepciones();
 			cueva.registrarAcciones();
 			lastMoveTime = TimeUtils.nanoTime();
