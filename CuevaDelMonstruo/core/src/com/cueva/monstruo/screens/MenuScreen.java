@@ -24,56 +24,45 @@ public class MenuScreen implements Screen {
 
 	@Override
 	public void show() {
-		game.cueva=new Cueva(Cueva.DEFAULT_SIZE);
-		game.cueva.agregarTesoro(Cueva.DEFAULT_SIZE, Cueva.DEFAULT_SIZE);
 		stage.clear();
 		Gdx.input.setInputProcessor(stage);
 		Skin skin = new Skin(Gdx.files.internal("skin/plain-james-ui.json"));
 		Table table = new Table();
 		table.setFillParent(true);
-//		table.setDebug(true);
 		stage.addActor(table);
 		//crear botones
-		TextButton newGame = new TextButton("Nueva partida",skin);
-		TextButton preferences = new TextButton("Opciones", skin);
+		TextButton start = new TextButton("Comenzar", skin);
 		TextButton exit = new TextButton("Salir", skin);
 		//añadir botones a la tabla
-		table.add(newGame).fillX().uniformX();
+		table.add(start).fillX().uniformX();
 		table.row().pad(10, 0, 10, 0);
-		table.add(preferences).fillX().uniformX();
-		table.row();
 		table.add(exit).fillX().uniformX();
 		//crear button listeners
-		exit.addListener(new ChangeListener(){
+		start.addListener(new ChangeListener() {
 			@Override
-			public void changed(ChangeEvent event, Actor actor){
-				Gdx.app.exit();
-			}
-		});
-		newGame.addListener(new ChangeListener(){
-			@Override
-			public void changed(ChangeEvent event, Actor actor){
+			public void changed(ChangeEvent event, Actor actor) {
 				game.changeScreen(CuevaDelMonstruo.DEMO);
 			}
 		});
-		preferences.addListener(new ChangeListener(){
+		exit.addListener(new ChangeListener() {
 			@Override
-			public void changed(ChangeEvent event, Actor actor){
-				game.changeScreen(CuevaDelMonstruo.SETTINGS_FIRST);
+			public void changed(ChangeEvent event, Actor actor) {
+				Gdx.app.exit();
 			}
 		});
 	}
 
 	@Override
 	public void render(float delta) {
-		Gdx.gl.glClearColor(251f / 255f, 140f / 255f, 100f / 255f, 1);
+		Gdx.gl.glClearColor(241f / 255f, 230f / 255f, 174f / 255f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
 		stage.draw();
 	}
+
 	@Override
 	public void resize(int width, int height) {
-		stage.getViewport().update(width, height, true);
+
 	}
 
 	@Override

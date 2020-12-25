@@ -72,12 +72,6 @@ public class SettingsFirstScreen implements Screen {
 				game.changeScreen(CuevaDelMonstruo.MENU);
 			}
 		});
-		nextButton.addListener(new ChangeListener() {
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				game.changeScreen(CuevaDelMonstruo.SETTINGS_SECOND);
-			}
-		});
 		sizeGameSelect.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {

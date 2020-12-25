@@ -64,12 +64,12 @@ public class SettingsSecondScreen implements Screen {
 		//botón para añadir un precipicio
 		final TextButton addCliffButton = new TextButton("Confirmar", skin);
 		//añadir listeners
-		backButton.addListener(new ChangeListener() {
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				game.changeScreen(CuevaDelMonstruo.SETTINGS_FIRST);
-			}
-		});
+//		backButton.addListener(new ChangeListener() {
+//			@Override
+//			public void changed(ChangeEvent event, Actor actor) {
+//				game.changeScreen(CuevaDelMonstruo.SETTINGS_FIRST);
+//			}
+//		});
 		nextButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
