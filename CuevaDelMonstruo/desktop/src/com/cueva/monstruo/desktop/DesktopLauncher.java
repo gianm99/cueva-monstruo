@@ -8,7 +8,7 @@ public class DesktopLauncher {
 	public static void main(String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "Cueva del monstruo";
-		config.width = 480;
+		config.width = 580;
 		config.height = 480;
 		config.forceExit = false;
 		new LwjglApplication(new CuevaDelMonstruo(), config);

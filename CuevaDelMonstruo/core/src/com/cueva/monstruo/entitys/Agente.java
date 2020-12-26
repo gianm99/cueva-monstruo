@@ -24,6 +24,7 @@ public class Agente {
 	private boolean dimensionConocida; //conoce la dimensión de la cueva
 	private int dimension; //dimensión de la cueva (si es conocida)
 	private int flechas; //flechas restantes
+	private int tesoros; //tesoros que buscar
 	private Posicion posActual; //posición actual
 	private Posicion posAnterior; //posición anterior
 	private Orientacion orientacion; //dirección en la que mira
@@ -522,5 +523,9 @@ public class Agente {
 
 	public void setFlechas(int flechas) {
 		this.flechas = flechas;
+	}
+
+	public void setTesoros(int tesoros) {
+		this.tesoros = tesoros;
 	}
 }
