@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -34,8 +33,8 @@ public class MainScreen implements Screen {
     private Texture tesoroCerrado;
     private Texture tesoroAbierto;
     private OrthographicCamera camara;
-    InputMultiplexer multiplexer;
-    private Stage stage;
+    private InputMultiplexer multiplexer;
+    private final Stage stage;
     private Skin skin;
     private SelectBox<Integer> selectDimension;
     private ImageButton botonTesoro;
@@ -46,12 +45,11 @@ public class MainScreen implements Screen {
     private ImageButton botonFastForward;
     private Estado estado;
     private ModoConfig modoConfig;
-    private boolean autoPlay;
     private boolean jugable;
     private long lastMoveTime;
     private static final int OFFSET_LEFT = 50;
     private static final int GAME_WIDTH = 480;
-    private static final int GAME_HEIGHT = 480;
+    private ModoDemo modoDemo;
 
     public MainScreen(CuevaDelMonstruo game) {
         this.game = game;
@@ -113,7 +111,6 @@ public class MainScreen implements Screen {
         botonFastForward.setDisabled(true);
         botonFastForward.setPosition(GAME_WIDTH + 100 - 36 - 7, 75);
         //añadir los botones al stage
-//        stage.addActor(labelDimension);
         stage.addActor(selectDimension);
         stage.addActor(botonTesoro);
         stage.addActor(botonMonstruo);
@@ -121,7 +118,9 @@ public class MainScreen implements Screen {
         stage.addActor(botonNext);
         stage.addActor(botonAuto);
         stage.addActor(botonFastForward);
+        cambiarEstado(Estado.CONFIG1);
         //input del usuario
+        //menú izquierdo
         selectDimension.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -161,15 +160,69 @@ public class MainScreen implements Screen {
                 }
             }
         });
-        cambiarEstado(Estado.CONFIG1);
+        //menú derecho
+        botonNext.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                modoConfig = ModoConfig.NADA;
+                if (estado != Estado.JUEGO) {
+                    cambiarEstado(Estado.JUEGO);
+                }
+                modoDemo = ModoDemo.STOP;
+                avanzar();
+            }
+        });
+        botonAuto.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (estado != Estado.JUEGO) {
+                    cambiarEstado(Estado.JUEGO);
+                }
+                if (modoDemo != ModoDemo.AUTO) {
+                    modoDemo = ModoDemo.AUTO;
+                } else {
+                    modoDemo = ModoDemo.STOP;
+                }
+            }
+        });
+        botonFastForward.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (estado != Estado.JUEGO) {
+                    cambiarEstado(Estado.JUEGO);
+                }
+                if (modoDemo != ModoDemo.FAST) {
+                    modoDemo = ModoDemo.FAST;
+                } else {
+                    modoDemo = ModoDemo.STOP;
+                }
+            }
+        });
+    }
+
+    /**
+     * Avanzar un paso en el juego
+     */
+    private void avanzar() {
+        if (estado == Estado.JUEGO) {
+            cueva.enviarPercepciones();
+            cueva.registrarAcciones();
+            lastMoveTime = TimeUtils.nanoTime();
+        }
+        if (cueva.haTerminado() && estado != Estado.TERMINADO) {
+            cambiarEstado(Estado.TERMINADO);
+        }
     }
 
     /**
      * Inicializa la información del juego cuando se cambia a esta pantalla
      */
     private void init() {
+        game.cueva = new Cueva(game.getPreferences().getGameSize());
+        cueva = game.cueva;
         jugable = false;
         modoConfig = ModoConfig.NADA;
+        modoDemo = ModoDemo.STOP;
         stage.clear();
         multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
@@ -207,10 +260,18 @@ public class MainScreen implements Screen {
                 }
                 return true;
             }
+
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+                    game.changeScreen(CuevaDelMonstruo.MENU);
+                    return true;
+                }
+                return false;
+            }
         });
         Gdx.input.setInputProcessor(multiplexer);
         skin = new Skin(Gdx.files.internal("skin/plain-james-ui.json"));
-        autoPlay = false;
         //crear la cámara
         camara = new OrthographicCamera();
         camara.setToOrtho(false, 580, 480);
@@ -224,9 +285,9 @@ public class MainScreen implements Screen {
     private void cambiarEstado(@NotNull Estado nuevo) {
         switch (nuevo) {
             case CONFIG1:
-                autoPlay = false;
                 jugable = false;
                 modoConfig = ModoConfig.NADA;
+                modoDemo = ModoDemo.STOP;
                 botonTesoro.setDisabled(false);
                 botonMonstruo.setDisabled(true);
                 botonPrecipicio.setDisabled(true);
@@ -242,6 +303,9 @@ public class MainScreen implements Screen {
                 if (estado != Estado.CONFIG2) {
                     botonMonstruo.setDisabled(false);
                     botonPrecipicio.setDisabled(false);
+                    botonNext.setDisabled(false);
+                    botonAuto.setDisabled(false);
+                    botonFastForward.setDisabled(false);
                 }
                 break;
             case JUEGO:
@@ -250,7 +314,17 @@ public class MainScreen implements Screen {
                 botonTesoro.setDisabled(true);
                 botonMonstruo.setDisabled(true);
                 botonPrecipicio.setDisabled(true);
+                modoConfig = ModoConfig.NADA;
                 break;
+            case TERMINADO:
+                botonNext.setDisabled(true);
+                botonAuto.setDisabled(true);
+                botonFastForward.setDisabled(true);
+                botonTesoro.setDisabled(true);
+                botonMonstruo.setDisabled(true);
+                botonPrecipicio.setDisabled(true);
+                break;
+
         }
         estado = nuevo;
     }
@@ -277,7 +351,9 @@ public class MainScreen implements Screen {
                 if (cuadro.isMonstruo()) game.batch.draw(monstruo, x, y);
                 //tesoro
                 if (cuadro.isTesoro()) {
-                    game.batch.draw(cueva.isTesoroEncontrado() ? tesoroAbierto : tesoroCerrado, x, y);
+                    game.batch.draw(tesoroCerrado, x, y);
+                } else if (cuadro.isEncontrado()) {
+                    game.batch.draw(tesoroAbierto, x, y);
                 }
                 //agente
                 if (cuadro.isAgente()) game.batch.draw(agente, x, y);
@@ -296,18 +372,13 @@ public class MainScreen implements Screen {
         }
         game.batch.end();
         //procesar input de usuario
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.changeScreen(CuevaDelMonstruo.MENU);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            autoPlay = !autoPlay;
-        }
-        if (!cueva.haTerminado() &&
-                ((autoPlay && TimeUtils.nanoTime() - lastMoveTime > 500000000)
-                        || (!autoPlay && Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)))) {
-            cueva.enviarPercepciones();
-            cueva.registrarAcciones();
-            lastMoveTime = TimeUtils.nanoTime();
+        switch (modoDemo) {
+            case AUTO:
+                if (TimeUtils.nanoTime() - lastMoveTime > 500000000) avanzar();
+                break;
+            case FAST:
+                if (TimeUtils.nanoTime() - lastMoveTime > 200000000) avanzar();
+                break;
         }
         //interfaz
         stage.act(Gdx.graphics.getDeltaTime());
@@ -365,10 +436,14 @@ public class MainScreen implements Screen {
     }
 
     private enum Estado {
-        CONFIG1, CONFIG2, JUEGO
+        CONFIG1, CONFIG2, JUEGO, TERMINADO
     }
 
     private enum ModoConfig {
         NADA, TESORO, MONSTRUO, PRECIPICIO
+    }
+
+    private enum ModoDemo {
+        STOP, AUTO, FAST
     }
 }

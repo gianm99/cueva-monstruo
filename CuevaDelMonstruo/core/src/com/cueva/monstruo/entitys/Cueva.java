@@ -12,7 +12,6 @@ package com.cueva.monstruo.entitys;
  */
 public class Cueva {
 
-    private boolean tesoroEncontrado;
     public Agente agente;
     private final int size;
     private int monstruos;
@@ -42,7 +41,6 @@ public class Cueva {
         boolean resplandor = cuadroAgente.isTesoro();
         boolean golpe = calcularGolpe();
         agente.actualizar(hedor, brisa, resplandor, golpe);
-        tesoroEncontrado = agente.isTesoro();
     }
 
     /**
@@ -62,6 +60,10 @@ public class Cueva {
      * no las dos a la vez.
      */
     public void registrarAcciones() {
+        if (agente.isTesoroEncontrado()) {
+            cuadroPos(agente.getPosActual()).setTesoro(false);
+            cuadroPos(agente.getPosActual()).setEncontrado(true);
+        }
         if (agente.puedoAtacar()) {
             Posicion posMonstruo = agente.atacar();
             retirarMonstruo(posMonstruo);
@@ -147,7 +149,8 @@ public class Cueva {
     public boolean agregarTesoro(int fila, int columna) {
         if (!posicionCorrecta(fila, columna) || (fila == 1 && columna == 1)
                 || cuadros[fila - 1][columna - 1].isMonstruo()
-                || cuadros[fila - 1][columna - 1].isPrecipicio()) {
+                || cuadros[fila - 1][columna - 1].isPrecipicio()
+                || cuadros[fila - 1][columna - 1].isTesoro()) {
             return false;
         }
         tesoros++;
@@ -314,10 +317,6 @@ public class Cueva {
 
     public int getSize() {
         return size;
-    }
-
-    public boolean isTesoroEncontrado() {
-        return tesoroEncontrado;
     }
 
     public int getMonstruos() {
