@@ -13,6 +13,7 @@ package com.cueva.monstruo.entitys;
 public class Cuadro {
 
     private boolean tesoro;                    //hay un tesoro
+    private boolean encontrado;                 //el tesoro ha sido encontrado
     private boolean monstruo;                //hay un monstruo
     private boolean hedor;                    //hay hedor
     private boolean precipicio;                //hay un precipicio
@@ -65,5 +66,13 @@ public class Cuadro {
 
     public void setAgente(boolean agente) {
         this.agente = agente;
+    }
+
+    public void setEncontrado(boolean encontrado) {
+        this.encontrado = encontrado;
+    }
+
+    public boolean isEncontrado() {
+        return encontrado;
     }
 }

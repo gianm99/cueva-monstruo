@@ -40,7 +40,7 @@ public class MenuScreen implements Screen {
         start.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.changeScreen(CuevaDelMonstruo.DEMO);
+                game.changeScreen(CuevaDelMonstruo.MAIN);
             }
         });
         exit.addListener(new ChangeListener() {

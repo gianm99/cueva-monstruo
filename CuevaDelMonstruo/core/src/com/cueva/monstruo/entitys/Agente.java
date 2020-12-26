@@ -19,8 +19,8 @@ import java.util.*;
 @SuppressWarnings("SpellCheckingInspection")
 public class Agente {
 
-    private boolean tesoro; //tesoro encontrado
-    private boolean terminado; //tesoro encontrado y en posición inicial
+    private boolean tesoroEncontrado; //ha encontrado un tesoro en la última iteración
+    private boolean terminado; //tesoros encontrados y en posición inicial
     private boolean dimensionConocida; //conoce la dimensión de la cueva
     private int dimension; //dimensión de la cueva (si es conocida)
     private int flechas; //flechas restantes
@@ -56,9 +56,12 @@ public class Agente {
      * @param golpe      ha notado un golpe
      */
     public void actualizar(boolean hedor, boolean brisa, boolean resplandor, boolean golpe) {
+        tesoroEncontrado = false;
         if (resplandor) {
-            tesoro = true;
-            pasos = buscarCamino(posActual, new Posicion(1, 1));
+            tesoros--;
+            tesoroEncontrado = true;
+            if (tesoros == 0)
+                pasos = buscarCamino(posActual, new Posicion(1, 1));
         }
         if (golpe) {
             switch (orientacion) {
@@ -287,6 +290,7 @@ public class Agente {
         //buscar el camino más corto de origen a destino
         caminos = new ArrayList<>();
         camino = new ArrayDeque<>();
+        //TODO Limitar el coste computacional
         busquedaEnProfundidad(conocimiento, origen, destino);
         ArrayDeque<Posicion> caminoMinimo = new ArrayDeque<>();
         int distanciaMinima = INFINITO;
@@ -361,7 +365,7 @@ public class Agente {
         posAnterior = posActual;
         posActual = posActual.adyacente(movimiento);
         System.out.println("Ahora estoy en " + posActual);
-        if (tesoro && posActual.esInicial()) {
+        if (tesoros == 0 && posActual.esInicial()) {
             terminado = true;
         }
     }
@@ -517,15 +521,15 @@ public class Agente {
         return posAnterior;
     }
 
-    public boolean isTesoro() {
-        return tesoro;
-    }
-
     public void setFlechas(int flechas) {
         this.flechas = flechas;
     }
 
     public void setTesoros(int tesoros) {
         this.tesoros = tesoros;
+    }
+
+    public boolean isTesoroEncontrado() {
+        return tesoroEncontrado;
     }
 }

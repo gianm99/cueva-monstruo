@@ -15,7 +15,7 @@ public class CuevaDelMonstruo extends Game {
     public SpriteBatch batch;
     public BitmapFont font;
     public final static int MENU = 1;
-    public final static int DEMO = 2;
+    public final static int MAIN = 2;
     public final static int WIDTH = 480;
     public final static int HEIGHT = 480;
 
@@ -51,7 +51,7 @@ public class CuevaDelMonstruo extends Game {
                 if (menuScreen == null) menuScreen = new MenuScreen(this);
                 this.setScreen(menuScreen);
                 break;
-            case DEMO:
+            case MAIN:
                 if (mainScreen == null) mainScreen = new MainScreen(this);
                 this.setScreen(mainScreen);
                 break;

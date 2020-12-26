@@ -112,7 +112,6 @@ public class MainScreen implements Screen {
         botonFastForward.setDisabled(true);
         botonFastForward.setPosition(GAME_WIDTH + 100 - 36 - 7, 75);
         //añadir los botones al stage
-//        stage.addActor(labelDimension);
         stage.addActor(selectDimension);
         stage.addActor(botonTesoro);
         stage.addActor(botonMonstruo);
@@ -120,7 +119,9 @@ public class MainScreen implements Screen {
         stage.addActor(botonNext);
         stage.addActor(botonAuto);
         stage.addActor(botonFastForward);
+        cambiarEstado(Estado.CONFIG1);
         //input del usuario
+        //menú izquierdo
         selectDimension.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -206,10 +207,18 @@ public class MainScreen implements Screen {
                 }
                 return true;
             }
+
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+                    game.changeScreen(CuevaDelMonstruo.MENU);
+                    return true;
+                }
+                return false;
+            }
         });
         Gdx.input.setInputProcessor(multiplexer);
         skin = new Skin(Gdx.files.internal("skin/plain-james-ui.json"));
-        autoPlay = false;
         //crear la cámara
         camara = new OrthographicCamera();
         camara.setToOrtho(false, 580, 480);
@@ -276,7 +285,9 @@ public class MainScreen implements Screen {
                 if (cuadro.isMonstruo()) game.batch.draw(monstruo, x, y);
                 //tesoro
                 if (cuadro.isTesoro()) {
-                    game.batch.draw(cueva.isTesoroEncontrado() ? tesoroAbierto : tesoroCerrado, x, y);
+                    game.batch.draw(tesoroCerrado, x, y);
+                } else if (cuadro.isEncontrado()) {
+                    game.batch.draw(tesoroAbierto, x, y);
                 }
                 //agente
                 if (cuadro.isAgente()) game.batch.draw(agente, x, y);
