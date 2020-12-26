@@ -316,8 +316,7 @@ public class Agente {
         return copia;
     }
 
-    private void busquedaEnProfundidad(HashMap<Posicion, Informacion> conocimiento,
-                                       Posicion origen, Posicion destino) {
+    private void busquedaEnProfundidad(HashMap<Posicion, Informacion> conocimiento, Posicion origen, Posicion destino) {
         if (consultar(conocimiento, origen).isVisitado()) return;
         consultar(conocimiento, origen).setVisitado(true);
         camino.add(origen);
