@@ -1,13 +1,12 @@
 package com.cueva.monstruo.screens;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -22,6 +21,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.cueva.monstruo.CuevaDelMonstruo;
 import com.cueva.monstruo.entitys.Cuadro;
 import com.cueva.monstruo.entitys.Cueva;
+import com.cueva.monstruo.entitys.Posicion;
 import org.jetbrains.annotations.NotNull;
 
 public class MainScreen implements Screen {
@@ -34,9 +34,9 @@ public class MainScreen implements Screen {
     private Texture tesoroCerrado;
     private Texture tesoroAbierto;
     private OrthographicCamera camara;
+    InputMultiplexer multiplexer;
     private Stage stage;
     private Skin skin;
-    private Label labelDimension;
     private SelectBox<Integer> selectDimension;
     private ImageButton botonTesoro;
     private ImageButton botonMonstruo;
@@ -46,24 +46,23 @@ public class MainScreen implements Screen {
     private ImageButton botonFastForward;
     private Estado estado;
     private ModoConfig modoConfig;
-    private boolean modoTesoro;
-    private boolean modoMonstruo;
-    private boolean modoPrecipicio;
     private boolean autoPlay;
-    private boolean hayTesoro;
+    private boolean jugable;
     private long lastMoveTime;
-    private static final int OFFSET_X = 50;
+    private static final int OFFSET_LEFT = 50;
+    private static final int GAME_WIDTH = 480;
+    private static final int GAME_HEIGHT = 480;
 
     public MainScreen(CuevaDelMonstruo game) {
         this.game = game;
         this.cueva = game.cueva;
         stage = new Stage(new ScreenViewport());
-        modoConfig = ModoConfig.NADA;
-        cambiarEstado(Estado.CONFIG1);
     }
 
     @Override
     public void show() {
+        //inicializar varios componentes
+        init();
         //cargar las texturas
         agente = escalarTextura(new Pixmap(Gdx.files.internal("agent.png")));
         monstruo = escalarTextura(new Pixmap(Gdx.files.internal("monster.png")));
@@ -73,39 +72,55 @@ public class MainScreen implements Screen {
         tesoroAbierto = escalarTextura(new Pixmap(Gdx.files.internal("chest_open.png")));
         //menú izquierdo
         //tamaño de la cueva
-        labelDimension = new Label("Dimension:", skin);
         selectDimension = new SelectBox<>(skin);
         selectDimension.setItems(3, 4, 5, 6, 8, 10, 12, 15, 16, 20); //tamaños seguros
+        selectDimension.setSize(30, 15);
         selectDimension.setSelected(game.getPreferences().getGameSize());
+        selectDimension.setPosition(10, 376);
         //botón tesoro
         Texture tesoro32 = new Texture(Gdx.files.internal("chest_closed.png"));
         Drawable drawableTesoro = new TextureRegionDrawable(new TextureRegion(tesoro32));
         botonTesoro = new ImageButton(drawableTesoro);
+        botonTesoro.setPosition(9, 276);
         //botón monstruo
         Texture monstruo32 = new Texture(Gdx.files.internal("monster.png"));
         Drawable drawableMonstruo = new TextureRegionDrawable(new TextureRegion(monstruo32));
         botonMonstruo = new ImageButton(drawableMonstruo);
+        botonMonstruo.setPosition(9, 176);
         //botón precipicio
         Texture precipicio32 = new Texture(Gdx.files.internal("trap.png"));
         Drawable drawablePrecipicio = new TextureRegionDrawable(new TextureRegion(precipicio32));
         botonPrecipicio = new ImageButton(drawablePrecipicio);
         botonPrecipicio.setDisabled(true);
+        botonPrecipicio.setPosition(9, 76);
         //menú derecho
         //botón next
         Texture next36 = new Texture(Gdx.files.internal("botones/next.png"));
         Drawable drawableNext = new TextureRegionDrawable(new TextureRegion(next36));
         botonNext = new ImageButton(drawableNext);
         botonNext.setDisabled(true);
+        botonNext.setPosition(GAME_WIDTH + 100 - 36 - 7, 369);
         //botón play
         Texture auto36 = new Texture(Gdx.files.internal("botones/auto.png"));
         Drawable drawableAuto = new TextureRegionDrawable(new TextureRegion(auto36));
         botonAuto = new ImageButton(drawableAuto);
         botonAuto.setDisabled(true);
+        botonAuto.setPosition(GAME_WIDTH + 100 - 36 - 7, 222);
         //botón fast forward
         Texture fast36 = new Texture(Gdx.files.internal("botones/auto-fast.png"));
         Drawable drawableFast = new TextureRegionDrawable(new TextureRegion(fast36));
         botonFastForward = new ImageButton(drawableFast);
         botonFastForward.setDisabled(true);
+        botonFastForward.setPosition(GAME_WIDTH + 100 - 36 - 7, 75);
+        //añadir los botones al stage
+//        stage.addActor(labelDimension);
+        stage.addActor(selectDimension);
+        stage.addActor(botonTesoro);
+        stage.addActor(botonMonstruo);
+        stage.addActor(botonPrecipicio);
+        stage.addActor(botonNext);
+        stage.addActor(botonAuto);
+        stage.addActor(botonFastForward);
         //input del usuario
         selectDimension.addListener(new ChangeListener() {
             @Override
@@ -116,20 +131,89 @@ public class MainScreen implements Screen {
                 cambiarEstado(Estado.CONFIG1);
             }
         });
+        botonTesoro.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (modoConfig != ModoConfig.TESORO) {
+                    modoConfig = ModoConfig.TESORO;
+                } else {
+                    modoConfig = ModoConfig.NADA;
+                }
+            }
+        });
+        botonMonstruo.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (modoConfig != ModoConfig.MONSTRUO) {
+                    modoConfig = ModoConfig.MONSTRUO;
+                } else {
+                    modoConfig = ModoConfig.NADA;
+                }
+            }
+        });
+        botonPrecipicio.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (modoConfig != ModoConfig.PRECIPICIO) {
+                    modoConfig = ModoConfig.PRECIPICIO;
+                } else {
+                    modoConfig = ModoConfig.NADA;
+                }
+            }
+        });
+        cambiarEstado(Estado.CONFIG1);
     }
 
     /**
-     * Inicializa la información del juego cuando
+     * Inicializa la información del juego cuando se cambia a esta pantalla
      */
     private void init() {
+        jugable = false;
         modoConfig = ModoConfig.NADA;
         stage.clear();
-        Gdx.input.setInputProcessor(stage);
+        multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(stage);
+        multiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean touchDown(int x, int y, int pointer, int button) {
+                Vector3 vector3 = new Vector3(x, y, 0);
+                camara.unproject(vector3);
+                x = (int) vector3.x;
+                y = (int) vector3.y;
+                if (x < OFFSET_LEFT || x > GAME_WIDTH + OFFSET_LEFT) {
+                    return false;
+                }
+                Posicion posicion = cueva.calcularPosicion(x - OFFSET_LEFT, y);
+                if (!cueva.posicionCorrecta(posicion)) {
+                    return false;
+                }
+                int fila = posicion.getFila();
+                int columna = posicion.getColumna();
+                switch (modoConfig) {
+                    case TESORO:
+                        if (cueva.agregarTesoro(fila, columna) && !jugable) {
+                            jugable = true;
+                            cambiarEstado(Estado.CONFIG2);
+                        }
+                        break;
+                    case MONSTRUO:
+                        cueva.agregarMonstruo(fila, columna);
+                        break;
+                    case PRECIPICIO:
+                        cueva.agregarPrecipicio(fila, columna);
+                        break;
+                    case NADA:
+                        return false;
+                }
+                return true;
+            }
+        });
+        Gdx.input.setInputProcessor(multiplexer);
         skin = new Skin(Gdx.files.internal("skin/plain-james-ui.json"));
         autoPlay = false;
         //crear la cámara
         camara = new OrthographicCamera();
-        camara.setToOrtho(false, 480, 480);
+        camara.setToOrtho(false, 580, 480);
     }
 
     /**
@@ -140,6 +224,9 @@ public class MainScreen implements Screen {
     private void cambiarEstado(@NotNull Estado nuevo) {
         switch (nuevo) {
             case CONFIG1:
+                autoPlay = false;
+                jugable = false;
+                modoConfig = ModoConfig.NADA;
                 botonTesoro.setDisabled(false);
                 botonMonstruo.setDisabled(true);
                 botonPrecipicio.setDisabled(true);
@@ -153,13 +240,13 @@ public class MainScreen implements Screen {
                 break;
             case CONFIG2:
                 if (estado != Estado.CONFIG2) {
-                    botonTesoro.setDisabled(true);
                     botonMonstruo.setDisabled(false);
                     botonPrecipicio.setDisabled(false);
                 }
                 break;
             case JUEGO:
                 this.cueva.agente.setFlechas(this.cueva.getMonstruos());
+                this.cueva.agente.setTesoros(this.cueva.getTesoros());
                 botonTesoro.setDisabled(true);
                 botonMonstruo.setDisabled(true);
                 botonPrecipicio.setDisabled(true);
@@ -179,7 +266,7 @@ public class MainScreen implements Screen {
         Cuadro cuadro;
         for (int i = 0; i < cueva.getSize(); i++) {
             for (int j = 0; j < cueva.getSize(); j++) {
-                int x = j * cueva.costado + OFFSET_X;
+                int x = j * cueva.costado + OFFSET_LEFT;
                 int y = i * cueva.costado;
                 //suelo
                 game.batch.draw(suelo, x, y);
