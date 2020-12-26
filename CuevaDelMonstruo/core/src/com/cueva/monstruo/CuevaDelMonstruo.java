@@ -5,9 +5,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.cueva.monstruo.entitys.Cueva;
 import com.cueva.monstruo.screens.MainScreen;
-import com.cueva.monstruo.screens.SettingsFirstScreen;
 import com.cueva.monstruo.screens.MenuScreen;
-import com.cueva.monstruo.screens.SettingsSecondScreen;
 
 public class CuevaDelMonstruo extends Game {
 	private com.cueva.monstruo.screens.MenuScreen menuScreen;
