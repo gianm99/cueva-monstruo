@@ -33,8 +33,8 @@ public class MainScreen implements Screen {
     private Texture tesoroCerrado;
     private Texture tesoroAbierto;
     private OrthographicCamera camara;
-    InputMultiplexer multiplexer;
-    private Stage stage;
+    private InputMultiplexer multiplexer;
+    private final Stage stage;
     private Skin skin;
     private SelectBox<Integer> selectDimension;
     private ImageButton botonTesoro;
@@ -45,12 +45,11 @@ public class MainScreen implements Screen {
     private ImageButton botonFastForward;
     private Estado estado;
     private ModoConfig modoConfig;
-    private boolean autoPlay;
     private boolean jugable;
     private long lastMoveTime;
     private static final int OFFSET_LEFT = 50;
     private static final int GAME_WIDTH = 480;
-    private static final int GAME_HEIGHT = 480;
+    private ModoDemo modoDemo;
 
     public MainScreen(CuevaDelMonstruo game) {
         this.game = game;
@@ -161,15 +160,69 @@ public class MainScreen implements Screen {
                 }
             }
         });
-        cambiarEstado(Estado.CONFIG1);
+        //menú derecho
+        botonNext.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                modoConfig = ModoConfig.NADA;
+                if (estado != Estado.JUEGO) {
+                    cambiarEstado(Estado.JUEGO);
+                }
+                modoDemo = ModoDemo.STOP;
+                avanzar();
+            }
+        });
+        botonAuto.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (estado != Estado.JUEGO) {
+                    cambiarEstado(Estado.JUEGO);
+                }
+                if (modoDemo != ModoDemo.AUTO) {
+                    modoDemo = ModoDemo.AUTO;
+                } else {
+                    modoDemo = ModoDemo.STOP;
+                }
+            }
+        });
+        botonFastForward.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (estado != Estado.JUEGO) {
+                    cambiarEstado(Estado.JUEGO);
+                }
+                if (modoDemo != ModoDemo.FAST) {
+                    modoDemo = ModoDemo.FAST;
+                } else {
+                    modoDemo = ModoDemo.STOP;
+                }
+            }
+        });
+    }
+
+    /**
+     * Avanzar un paso en el juego
+     */
+    private void avanzar() {
+        if (estado == Estado.JUEGO) {
+            cueva.enviarPercepciones();
+            cueva.registrarAcciones();
+            lastMoveTime = TimeUtils.nanoTime();
+        }
+        if (cueva.haTerminado() && estado != Estado.TERMINADO) {
+            cambiarEstado(Estado.TERMINADO);
+        }
     }
 
     /**
      * Inicializa la información del juego cuando se cambia a esta pantalla
      */
     private void init() {
+        game.cueva = new Cueva(game.getPreferences().getGameSize());
+        cueva = game.cueva;
         jugable = false;
         modoConfig = ModoConfig.NADA;
+        modoDemo = ModoDemo.STOP;
         stage.clear();
         multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
@@ -232,9 +285,9 @@ public class MainScreen implements Screen {
     private void cambiarEstado(@NotNull Estado nuevo) {
         switch (nuevo) {
             case CONFIG1:
-                autoPlay = false;
                 jugable = false;
                 modoConfig = ModoConfig.NADA;
+                modoDemo = ModoDemo.STOP;
                 botonTesoro.setDisabled(false);
                 botonMonstruo.setDisabled(true);
                 botonPrecipicio.setDisabled(true);
@@ -250,6 +303,9 @@ public class MainScreen implements Screen {
                 if (estado != Estado.CONFIG2) {
                     botonMonstruo.setDisabled(false);
                     botonPrecipicio.setDisabled(false);
+                    botonNext.setDisabled(false);
+                    botonAuto.setDisabled(false);
+                    botonFastForward.setDisabled(false);
                 }
                 break;
             case JUEGO:
@@ -258,7 +314,17 @@ public class MainScreen implements Screen {
                 botonTesoro.setDisabled(true);
                 botonMonstruo.setDisabled(true);
                 botonPrecipicio.setDisabled(true);
+                modoConfig = ModoConfig.NADA;
                 break;
+            case TERMINADO:
+                botonNext.setDisabled(true);
+                botonAuto.setDisabled(true);
+                botonFastForward.setDisabled(true);
+                botonTesoro.setDisabled(true);
+                botonMonstruo.setDisabled(true);
+                botonPrecipicio.setDisabled(true);
+                break;
+
         }
         estado = nuevo;
     }
@@ -306,18 +372,13 @@ public class MainScreen implements Screen {
         }
         game.batch.end();
         //procesar input de usuario
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.changeScreen(CuevaDelMonstruo.MENU);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            autoPlay = !autoPlay;
-        }
-        if (!cueva.haTerminado() &&
-                ((autoPlay && TimeUtils.nanoTime() - lastMoveTime > 500000000)
-                        || (!autoPlay && Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)))) {
-            cueva.enviarPercepciones();
-            cueva.registrarAcciones();
-            lastMoveTime = TimeUtils.nanoTime();
+        switch (modoDemo) {
+            case AUTO:
+                if (TimeUtils.nanoTime() - lastMoveTime > 500000000) avanzar();
+                break;
+            case FAST:
+                if (TimeUtils.nanoTime() - lastMoveTime > 200000000) avanzar();
+                break;
         }
         //interfaz
         stage.act(Gdx.graphics.getDeltaTime());
@@ -375,10 +436,14 @@ public class MainScreen implements Screen {
     }
 
     private enum Estado {
-        CONFIG1, CONFIG2, JUEGO
+        CONFIG1, CONFIG2, JUEGO, TERMINADO
     }
 
     private enum ModoConfig {
         NADA, TESORO, MONSTRUO, PRECIPICIO
+    }
+
+    private enum ModoDemo {
+        STOP, AUTO, FAST
     }
 }
