@@ -300,7 +300,7 @@ public class Agente {
                 caminoMinimo = actual;
             }
         }
-        caminoMinimo.removeFirst(); //quitar el origen del camino
+        caminoMinimo.removeLast(); //quitar el origen del camino
         //convertir la lista de posiciones a movimientos
         return convertirAMovimientos(origen, caminoMinimo);
     }
@@ -317,13 +317,14 @@ public class Agente {
     }
 
     private void busquedaEnProfundidad(HashMap<Posicion, Informacion> conocimiento, Posicion origen, Posicion destino) {
-        if (consultar(conocimiento, origen).isVisitado()) return;
-        consultar(conocimiento, origen).setVisitado(true);
-        camino.add(origen);
+        Informacion info=consultar(conocimiento, origen);
+        if (info.isVisitado()) return;
+        info.setVisitado(true);
+        camino.push(origen);
         if (origen.equals(destino)) {
             caminos.add(camino.clone());
-            consultar(conocimiento, origen).setVisitado(false);
-            camino.removeLast();
+            info.setVisitado(false);
+            camino.pop();
             return;
         }
         //buscar recursivamente las posiciones seguras adyacentes en orden Sur, Este, Norte, Oeste
@@ -331,8 +332,7 @@ public class Agente {
             Posicion adyacente = origen.adyacente(o);
             if (posSegura(adyacente)) busquedaEnProfundidad(conocimiento, adyacente, destino);
         }
-        camino.removeLast();
-        consultar(conocimiento, origen).setVisitado(false);
+        camino.pop();
     }
 
 
@@ -348,7 +348,7 @@ public class Agente {
         Posicion posicion = origen;
         Orientacion movimiento;
         while (!posiciones.isEmpty()) {
-            movimiento = posicion.direccion(posiciones.removeFirst());
+            movimiento = posicion.direccion(posiciones.removeLast());
             movimientos.add(movimiento);
             posicion = posicion.adyacente(movimiento);
         }
