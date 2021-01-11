@@ -71,7 +71,7 @@ public class MainScreen implements Screen {
         //menú izquierdo
         //tamaño de la cueva
         selectDimension = new SelectBox<>(skin);
-        selectDimension.setItems(3, 4, 5, 6, 8, 10, 12, 15, 16, 20); //tamaños seguros
+        selectDimension.setItems(3, 4, 5, 6, 8, 10, 12); //tamaños seguros
         selectDimension.setSize(30, 15);
         selectDimension.setSelected(game.getPreferences().getGameSize());
         selectDimension.setPosition(10, 376);
